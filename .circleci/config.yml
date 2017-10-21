@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - run:
+          name: Install requirements
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install -r test-requirements.txt
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            python -m unittest tests.test_setup_logging
