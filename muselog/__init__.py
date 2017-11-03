@@ -49,7 +49,7 @@ def setup_logging(root_log_level: Optional[str] = None,
         elif handler_type == "tls":
             gelf_handler = GelfTlsHandler(**common_opts,
                                           port=int(os.environ.get("GRAYLOG_TLS_PORT", 12201)),
-                                          timeout=float(os.environ.get("GRAYLOG_TLS_TIMEOUT_SECS", 0.1)))
+                                          timeout=float(os.environ.get("GRAYLOG_TLS_TIMEOUT_SECS", 0.3)))
         else:
             raise ValueError("Graylog handler type '{}' not recognized. Valid types are 'udp' and 'tls'.".format(handler_type))
         root_logger.addHandler(gelf_handler)
