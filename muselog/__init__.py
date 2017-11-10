@@ -38,7 +38,8 @@ def setup_logging(root_log_level: Optional[str] = None,
             host=os.environ["GRAYLOG_HOST"],
             debug=bool(os.environ.get("GRAYLOG_DEBUG", True)),
             include_extra_fields=True,
-            _app_name=os.environ["GRAYLOG_APP_NAME"]
+            _app_name=os.environ["GRAYLOG_APP_NAME"],
+            _env=os.environ["GRAYLOG_ENV"]
         )
         handler_type = os.environ.get("GRAYLOG_HANDLER_TYPE", "tls").lower()
         if handler_type == "udp":
