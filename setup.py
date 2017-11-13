@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 
 install_requires = [
     "pygelf>=0.4.1"
