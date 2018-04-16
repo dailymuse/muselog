@@ -13,7 +13,7 @@ def log_request(response):
     
     Usage:
     @app.after_request
-    log_after_request(response)
+    log_request(response)
 
     """
 
