@@ -8,7 +8,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 # http://flask.pocoo.org/docs/0.12/api/#flask.Flask.after_request
-def log_after_request(response):
+def log_request(response):
     """Logging after every flask request with extra context for use w/ Graylog-enabled apps.
     
     Usage:
