@@ -16,7 +16,8 @@ def log_request(request, response):
     
     Usage:
     @app.after_request
-    log_request(response)
+    def after_request(response):
+        return muselog.flask.log_request(request, response)
 
     """
 
