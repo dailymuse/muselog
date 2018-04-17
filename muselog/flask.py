@@ -4,6 +4,7 @@ Custom logger for user auth service in python flask
 
 import logging
 import traceback
+
 from time import strftime
 
 
