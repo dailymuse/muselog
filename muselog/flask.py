@@ -4,6 +4,8 @@ Custom logger for user auth service in python flask
 
 import logging
 import traceback
+from time import strftime
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ def log_request(response):
     tb = traceback.format_exc()
     request_summary = "{}-{}-{}".format(request.method, request.query_string, request.remote_addr)
 
-    log_method("%d %s", response.status, request_summary,
+    log_method("%d %s %s", response.status, request_summary, ts
                extra={"request_method": request.method,
                       "request_path": request.full_path,
                       "request_query": request.query_string,
