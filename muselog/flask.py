@@ -38,6 +38,5 @@ def log_request(request, response):
                       "request_query": request.query_string,
                       "response_status": response.status,
                       "request_remote_ip": request.remote_addr,
-                      "request_summary": request_summary,
-                      "traceback": tb})
+                      "request_summary": request_summary})
     return response
