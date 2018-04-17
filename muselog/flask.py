@@ -32,7 +32,7 @@ def log_request(request, response):
     tb = traceback.format_exc()
     request_summary = "{}-{}-{}".format(request.method, request.query_string, request.remote_addr)
 
-    log_method("%d %s %s", response.status, request_summary, ts,
+    log_method("%d %s %s", response.status_code, request_summary, ts,
                extra={"request_method": request.method,
                       "request_path": request.full_path,
                       "request_query": request.query_string,
