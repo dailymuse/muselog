@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Mapping, Optional, Union, Any
+from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
