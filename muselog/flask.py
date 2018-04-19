@@ -35,6 +35,7 @@ def log_request(app, request, response):
         log_method = app.logger.error
 
     ts = strftime('[%Y-%b-%d %H:%M]')
+    # decode byte to string for query_string here
     resquest_query = request.query_string.decode("utf-8")
     request_summary = "{0} {1} {2}".format(request.method, resquest_query, request.remote_addr)
 
