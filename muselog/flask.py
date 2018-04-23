@@ -31,13 +31,12 @@ def log_request(request_duration, request, response):
 
     ts = strftime('[%Y-%b-%d %H:%M]')
     # decode byte to string for query_string here
-    resquest_query = request.query_string.decode("utf-8")
-    request_summary = "{0} {1} {2}".format(request.method, resquest_query, request.remote_addr)
-
+    request_query = request.query_string.decode("utf-8")
+    request_summary = f"{request.method} {request_query} {request.remote_addr}"
 
     data={"request_method": request.method,
           "request_path": request.full_path,
-          "request_query": resquest_query,
+          "request_query": request_query,
           "response_status": response.status,
           "request_duration": request_duration,
           "request_remote_ip": request.remote_addr,
