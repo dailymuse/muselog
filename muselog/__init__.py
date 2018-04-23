@@ -31,7 +31,6 @@ def setup_logging(root_log_level: Optional[str] = None,
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
-        
 
     # Add GELF handler if GELF is enabled
     if "GRAYLOG_HOST" in os.environ:
