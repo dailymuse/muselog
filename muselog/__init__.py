@@ -10,6 +10,7 @@ from pygelf import GelfUdpHandler, GelfTlsHandler
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
 
+
 def setup_logging(root_log_level: Optional[str] = None,
                   module_log_levels: Optional[Mapping[str, Union[str, int]]] = None,
                   add_console_handler: bool = True,
