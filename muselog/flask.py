@@ -21,11 +21,6 @@ def log_request(app, request, response):
 
     """
 
-    root_logger = app.logger
-    root_logger.setLevel(logging.INFO)
-    add_gelf_handler(root_logger)
-    root_logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-
     # http://flask.pocoo.org/docs/0.12/quickstart/#logging
     if response.status_code < 400:
         log_method = app.logger.info
