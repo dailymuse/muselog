@@ -4,14 +4,14 @@ Custom logger for user auth service in python flask
 
 import sys
 import logging
+from typing import Any
 
 from time import strftime
-from muselog import add_gelf_handler
 
 logger = logging.getLogger(__name__)
 
 # http://flask.pocoo.org/docs/0.12/api/#flask.Flask.after_request
-def log_request(request_duration, request, response):
+def log_request(request_duration: int, request: Any, response: Any):
     """Logging after every flask request with extra context for use w/ Graylog-enabled apps.
     
     Usage:
