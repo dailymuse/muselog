@@ -10,13 +10,13 @@ from time import strftime
 logger = logging.getLogger(__name__)
 
 # http://flask.pocoo.org/docs/0.12/api/#flask.Flask.after_request
-def log_request(request, response):
+def log_request(request_duration, request, response):
     """Logging after every flask request with extra context for use w/ Graylog-enabled apps.
     
     Usage:
     @app.after_request
     def after_request(response):
-        return muselog.flask.log_request(request, response)
+        return muselog.flask.log_request(request_duration, request, response)
 
     """
 
@@ -37,6 +37,7 @@ def log_request(request, response):
           "request_path": request.full_path,
           "request_query": request_query,
           "response_status": response.status,
+          "request_duration": request_duration,
           "request_remote_ip": request.remote_addr,
           "request_summary": request_summary}
   
