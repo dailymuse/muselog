@@ -15,7 +15,14 @@ def setup_logging(root_log_level: Optional[str] = None,
                   module_log_levels: Optional[Mapping[str, Union[str, int]]] = None,
                   add_console_handler: bool = True,
                   console_handler_format: Optional[str] = None):
-    """Setup log handlers for the rover namespace"""
+    """
+    Setup log handlers for the rover namespace
+
+    :param root_log_level: The log level all loggers use by default. (Default: `"WARNING"`)
+    :param module_log_levels: A mapping of module names to their desired log levels.
+    :param add_console_handler: If `True`, enable logging to stdout. (Default: `True`).
+    :param console_handler_format: Specifies the format of stdout logs. (Default: `DEFAULT_LOG_FORMAT`).
+    """
 
     if root_log_level is None:
         root_log_level = "WARNING"
