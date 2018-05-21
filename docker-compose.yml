@@ -1,5 +1,12 @@
 version: "2.1"
 services:
+  test:
+    image: python:3.6
+    command: bash -c "pip install -r test-requirements.txt && python -m unittest tests.test_setup_logging"
+    working_dir: /muselog
+    volumes:
+      - .:/muselog
+
   mongo:
     image: mongo:3
   elasticsearch:
