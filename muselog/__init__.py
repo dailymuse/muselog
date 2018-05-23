@@ -16,7 +16,7 @@ def setup_logging(root_log_level: Optional[str] = None,
                   add_console_handler: bool = True,
                   console_handler_format: Optional[str] = None):
     """
-    Setup log handlers for the rover namespace
+    Setup log handlers for each application's namespace
 
     :param root_log_level: The log level all loggers use by default. (Default: `"WARNING"`)
     :param module_log_levels: A mapping of module names to their desired log levels.
