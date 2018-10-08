@@ -36,7 +36,8 @@ You must set following environment variables to enable Graylog integration.
 ### Datadog integation
 You must set following environment variables to enable datadog integration.
 
-- LOG_TO_DATADOG            :: The key should be present in the env, it basically tells muselog to use datadog specific config. (LOG_TO_DATADOG=True)
+- DATADOG_HOST            :: Datadog host to send JSON logs to
+- DATADOG_UDP_PORT        :: datadog server port that `udp` handler type sends messages to. (Default: 10518).
 
 ### Tornado integration
 Muselog provides a request hook for Tornado, which logs request data at the conclusion of each request.

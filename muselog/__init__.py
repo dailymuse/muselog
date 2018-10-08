@@ -66,9 +66,13 @@ def setup_logging(root_log_level: Optional[str] = None,
 
     # Add datadog handler if log to datadog is enabled
     # https://docs.datadoghq.com/logs/log_collection/python/#configure-the-datadog-agent
-    if "LOG_TO_DATADOG" in os.environ:
+    if "DATADOG_HOST" in os.environ:
+        opts = dict(
+            host=os.environ["DATADOG_HOST"],
+            port=int(os.environ.get("DATADOG_UDP_PORT", 10518)
+        )
 
-        datadog_handler = logging.StreamHandler()
+        datadog_handler = logging.DatagramHandler(**opts)
 
         # get and set datadog_handler formatter
         formatter = jsonlogger.JsonFormatter()
