@@ -33,6 +33,11 @@ You must set following environment variables to enable Graylog integration.
 - GRAYLOG_TLS_PORT          :: Graylog server port that `tls` handler type sends GELF messages to. (Default: 12201).
 - GRAYLOG_TLS_TIMEOUT_SECS  :: Number of seconds to wait for TCP ack before abandoning message send.
 
+### Datadog integation
+You must set following environment variables to enable datadog integration.
+
+- LOG_TO_DATADOG            :: The key should be present in the env, it basically tells muselog to use datadog specific config. (LOG_TO_DATADOG=True)
+
 ### Tornado integration
 Muselog provides a request hook for Tornado, which logs request data at the conclusion of each request.
 You can use this hook in your application by pointing Tornado's `log_function` setting to `muselog.tornado.log_request`.
