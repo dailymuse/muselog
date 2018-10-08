@@ -5,6 +5,7 @@ import os
 from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
+from pythonjsonlogger import jsonlogger
 
 
 #: Format to use
@@ -60,4 +61,17 @@ def setup_logging(root_log_level: Optional[str] = None,
                                           timeout=float(os.environ.get("GRAYLOG_TLS_TIMEOUT_SECS", 0.3)))
         else:
             raise ValueError("Graylog handler type '{}' not recognized. Valid types are 'udp' and 'tls'.".format(handler_type))
+
         root_logger.addHandler(gelf_handler)
+
+    # Add datadog handler if log to datadog is enabled
+    # https://docs.datadoghq.com/logs/log_collection/python/#configure-the-datadog-agent
+    if "LOG_TO_DATADOG" in os.environ:
+
+        datadog_handler = logging.StreamHandler()
+
+        # get and set datadog_handler formatter
+        formatter = jsonlogger.JsonFormatter()
+        datadog_handler.setFormatter(formatter)
+
+        root_logger.addHandler(datadog_handler)

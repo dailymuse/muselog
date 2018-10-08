@@ -3,7 +3,8 @@ from setuptools import setup
 VERSION = "1.2.0"
 
 install_requires = [
-    "pygelf>=0.4.1"
+    "pygelf>=0.4.1",
+    "python-json-logger==0.1.9"
 ]
 
 setup(
