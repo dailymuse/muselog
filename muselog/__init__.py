@@ -69,9 +69,9 @@ def setup_logging(root_log_level: Optional[str] = None,
     if "DATADOG_HOST" in os.environ:
         opts = dict(
             host=os.environ["DATADOG_HOST"],
-            port=int(os.environ.get("DATADOG_UDP_PORT", 10518)
+            port=int(os.environ.get("DATADOG_UDP_PORT", 10518))
         )
-
+        
         datadog_handler = logging.DatagramHandler(**opts)
 
         # get and set datadog_handler formatter
