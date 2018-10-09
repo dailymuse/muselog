@@ -3,6 +3,8 @@ Helpers to log tornado request information.
 """
 
 import logging
+import os
+
 
 logger = logging.getLogger(__name__)
 
