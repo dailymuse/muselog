@@ -24,7 +24,7 @@ def log_request(handler):
 
     # get logs for datadog
     if "DATADOG_HOST" in os.environ:
-        log_method("%d %s %.2fms", response_status, request_summary, request_time)
+        log_method("sample message from sjames themuse")
 
     # get logs for graylog
     if "GRAYLOG_HOST" in os.environ:
