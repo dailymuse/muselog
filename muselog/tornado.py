@@ -20,11 +20,17 @@ def log_request(handler):
     else:
         log_method = logger.error
 
-    log_method("%d %s %.2fms", response_status, request_summary, request_time,
-               extra={"request_method": handler.request.method,
-                      "request_path": handler.request.path,
-                      "request_query": handler.request.query,
-                      "response_status": response_status,
-                      "request_duration": request_time,
-                      "request_remote_ip": handler.request.remote_ip,
-                      "request_summary": request_summary})
+    # get logs for datadog
+    if "DATADOG_HOST" in os.environ:
+        log_method("%d %s %.2fms", response_status, request_summary, request_time)
+
+    # get logs for graylog
+    if "GRAYLOG_HOST" in os.environ:
+        log_method("%d %s %.2fms", response_status, request_summary, request_time,
+                extra={"request_method": handler.request.method,
+                        "request_path": handler.request.path,
+                        "request_query": handler.request.query,
+                        "response_status": response_status,
+                        "request_duration": request_time,
+                        "request_remote_ip": handler.request.remote_ip,
+                        "request_summary": request_summary})
