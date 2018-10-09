@@ -6,7 +6,6 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 import json_log_formatter
-import ujson
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
