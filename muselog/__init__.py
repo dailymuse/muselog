@@ -76,8 +76,6 @@ def setup_logging(root_log_level: Optional[str] = None,
 
         # get and set datadog_handler formatter
         formatter = json_log_formatter.JSONFormatter()
-        formatter.json_lib = ujson
-
         datadog_handler.setFormatter(formatter)
 
         root_logger.addHandler(datadog_handler)
