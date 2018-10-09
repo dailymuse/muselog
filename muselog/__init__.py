@@ -5,8 +5,8 @@ import os
 from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
-from pythonjsonlogger import jsonlogger
-
+import json_log_formatter
+import ujson
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -75,7 +75,9 @@ def setup_logging(root_log_level: Optional[str] = None,
         datadog_handler = logging.handlers.DatagramHandler(**opts)
 
         # get and set datadog_handler formatter
-        formatter = jsonlogger.JsonFormatter()
+        formatter = json_log_formatter.JSONFormatter()
+        formatter.json_lib = ujson
+
         datadog_handler.setFormatter(formatter)
 
         root_logger.addHandler(datadog_handler)
