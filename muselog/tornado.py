@@ -25,7 +25,7 @@ def log_request(handler):
     # get logs for graylog or datadog
     if "GRAYLOG_HOST" or "DATADOG_HOST" in os.environ:
         log_method("%d %s %.2fms", response_status, request_summary, request_time,
-                extra={"request_method": handler.request.method,
+                        extra={"request_method": handler.request.method,
                         "request_path": handler.request.path,
                         "request_query": handler.request.query,
                         "response_status": response_status,
