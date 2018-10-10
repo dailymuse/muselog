@@ -5,6 +5,7 @@ import zlib
 import os
 import struct
 import traceback
+import socket
 
 from logging.handlers import DatagramHandler
 
