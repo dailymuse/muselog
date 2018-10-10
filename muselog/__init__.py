@@ -5,8 +5,6 @@ import os
 from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
-import json_log_formatter
-import ujson
 
 from .datadog_handler import DataDogUdpHandler
 
@@ -75,10 +73,4 @@ def setup_logging(root_log_level: Optional[str] = None,
         )
         
         datadog_handler = DataDogUdpHandler(**opts)
-
-        # get and set datadog_handler formatter
-        formatter = json_log_formatter.JSONFormatter()
-        formatter.json_lib = ujson
-        datadog_handler.setFormatter(formatter)
-
         root_logger.addHandler(datadog_handler)

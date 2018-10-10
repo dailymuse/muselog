@@ -60,10 +60,6 @@ def get_datadog_object(record, domain):
 
     if record.exc_info is not None:
         dd_object['full_message'] = '\n'.join(traceback.format_exception(*record.exc_info))
-    elif record.exc_text is not None:
-        # QueueHandler, if used, formats the record, so that exc_info will always be empty:
-        # https://docs.python.org/3/library/logging.handlers.html#logging.handlers.QueueHandler
-        dd_object['full_message'] = record.exc_text
 
     return dd_object
 
