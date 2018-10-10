@@ -49,11 +49,11 @@ def get_datadog_object(record, domain):
         'short_message': record.getMessage(),
         'timestamp': record.created,
         'level': LEVELS[record.levelno],
-        'host': domain
-        'file': record.filename
-        'line': record.lineno
-        'module': record.module
-        'func': record.funcName
+        'host': domain,
+        'file': record.filename,
+        'line': record.lineno,
+        'module': record.module,
+        'func': record.funcName,
         'logger_name': record.name
     }
 
