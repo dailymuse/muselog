@@ -37,8 +37,7 @@ def setup_logging(root_log_level: Optional[str] = None,
 
     if add_console_handler:
         console_handler = logging.StreamHandler()
-        jformatter = json_log_formatter.JSONFormatter()
-        console_handler.setFormatter(logging.Formatter(fmt=jformatter))
+        console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
 
     # Add GELF handler if GELF is enabled
