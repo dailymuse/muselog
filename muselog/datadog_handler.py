@@ -47,7 +47,7 @@ def split(gelf, chunk_size):
 def get_datadog_object(record, domain):
 
     dd_object = {
-        'short_message': record.getMessage(),
+        'shortMessage': record.getMessage(),
         'timestamp': record.created,
         'level': LEVELS[record.levelno],
         'host': domain,
@@ -55,11 +55,13 @@ def get_datadog_object(record, domain):
         'line': record.lineno,
         'module': record.module,
         'func': record.funcName,
-        'logger_name': record.name
+        'loggerName': record.name,
+        'threadName': record.threadName,
+        'errorType': record.levelname
     }
 
     if record.exc_info is not None:
-        dd_object['full_message'] = '\n'.join(traceback.format_exception(*record.exc_info))
+        dd_object['fullMessage'] = '\n'.join(traceback.format_exception(*record.exc_info))
 
     return dd_object
 

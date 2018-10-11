@@ -5,10 +5,8 @@ import os
 from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
-import json_log_formatter
-import ujson
 
-from .datadog_handler import DataDogUdpHandler
+from .datadog_formatter import DatadogJSONFormatter
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -39,7 +37,8 @@ def setup_logging(root_log_level: Optional[str] = None,
 
     if add_console_handler:
         console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
+        jformatter = json_log_formatter.JSONFormatter()
+        console_handler.setFormatter(logging.Formatter(fmt=jformatter))
         root_logger.addHandler(console_handler)
 
     # Add GELF handler if GELF is enabled
@@ -74,11 +73,10 @@ def setup_logging(root_log_level: Optional[str] = None,
             port=int(os.environ.get("DATADOG_UDP_PORT", 10518))
         )
         
-        datadog_handler = DataDogUdpHandler(**opts)
+        datadog_handler = logging.handlers.DatagramHandler(**opts)
 
         # get and set datadog_handler formatter
-        formatter = json_log_formatter.JSONFormatter()
-        formatter.json_lib = ujson
+        formatter = DatadogJSONFormatter()
         datadog_handler.setFormatter(formatter)
 
         root_logger.addHandler(datadog_handler)
