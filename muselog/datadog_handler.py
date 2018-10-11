@@ -28,22 +28,6 @@ def pack(get_object, compress, default):
     packed = json.dumps(get_object, separators=(',', ':'), default=default).encode('utf-8')
     return zlib.compress(packed) if compress else packed
 
-def split(gelf, chunk_size):
-    header = b'\x1e\x0f'
-    message_id = os.urandom(8)
-    chunks = [gelf[pos:pos+chunk_size] for pos in range(0, len(gelf), chunk_size)]
-    number_of_chunks = len(chunks)
-
-    for chunk_index, chunk in enumerate(chunks):
-        yield b''.join((
-            header,
-            message_id,
-            struct.pack('b', chunk_index),
-            struct.pack('b', number_of_chunks),
-            chunk
-        ))    
-
-
 def get_datadog_object(record, domain):
 
     dd_object = {
@@ -90,7 +74,7 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
     makeLogRecord function.
     """
 
-    def __init__(self, host, port, compress=False, chunk_size=1300, **kwargs):
+    def __init__(self, host, port, compress=False, **kwargs):
         """
         Initializes the handler with a specific host address and port.
 
@@ -102,8 +86,6 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
 
         DatagramHandler.__init__(self, host, port)
         BaseHandler.__init__(self, compress=compress, **kwargs)
-
-        self.chunk_size = chunk_size
 
     def makePickle(self, record):
         """
