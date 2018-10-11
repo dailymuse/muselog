@@ -48,20 +48,22 @@ class DataDogUdpHandler(DatagramHandler):
         #self.sock can be None either because we haven't reached the retry
         #time yet, or because we have reached the retry time and retried,
         #but are still unable to connect.
-        if self.sock:
-            try:
-                if hasattr(self.sock, "sendall"):
-                    self.sock.sendall(s.encode('utf-8'))
-                else:
-                    sentsofar = 0
-                    left = len(s)
-                    while left > 0:
-                        sent = self.sock.sendto(bytearray(s[sentsofar:], 'utf-8'), self.address)
-                        sentsofar = sentsofar + sent
-                        left = left - sent
-            except socket.error:
-                self.sock.close()
-                self.sock = None  # so we can call createSocket next time
+        # if self.sock:
+        #     try:
+        #         if hasattr(self.sock, "sendall"):
+        #             self.sock.sendall(s.encode('utf-8'))
+        #         else:
+        #             sentsofar = 0
+        #             left = len(s)
+        #             while left > 0:
+        #                 sent = self.sock.sendto(bytearray(s[sentsofar:], 'utf-8'), self.address)
+        #                 sentsofar = sentsofar + sent
+        #                 left = left - sent
+        #     except socket.error:
+        #         self.sock.close()
+        #         self.sock = None  # so we can call createSocket next time
+        self.sock.sendall(s.encode('utf-8'))
+
 
     def makePickle(self, record):
         """
