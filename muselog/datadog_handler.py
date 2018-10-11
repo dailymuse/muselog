@@ -103,15 +103,6 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
 
         self.chunk_size = chunk_size
 
-    def send(self, s):
-        if len(s) <= self.chunk_size:
-            DatagramHandler.send(self, s)
-            return
-
-        chunks = split(s, self.chunk_size)
-        for chunk in chunks:
-            DatagramHandler.send(self, chunk)
-
     def makePickle(self, record):
         """
         Pickles the record in binary format with a length prefix, and
