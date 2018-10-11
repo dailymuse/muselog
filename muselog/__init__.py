@@ -6,8 +6,7 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
-from .datadog_formatter import DatadogJSONFormatter
-from .datadog_handler import DataDogUdpHandler
+from .datadog import DataDogUdpHandler, DatadogJSONFormatter
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
