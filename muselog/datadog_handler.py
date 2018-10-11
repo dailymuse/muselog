@@ -6,6 +6,7 @@ import os
 import struct
 import traceback
 import socket
+import pickle
 
 from logging.handlers import DatagramHandler
 
@@ -24,9 +25,9 @@ def object_to_json(obj):
         return obj.isoformat()
     return str(obj)
 
-def pack(get_object, compress, default):
+def pack(get_object, default):
     packed = json.dumps(get_object, separators=(',', ':'), default=default).encode('utf-8')
-    return zlib.compress(packed) if compress else packed
+    return packed
 
 def get_datadog_object(record, domain):
 
@@ -51,19 +52,18 @@ def get_datadog_object(record, domain):
 
 
 class BaseHandler(object):
-    def __init__(self, json_default=object_to_json, compress=False, **kwargs):
+    def __init__(self, json_default=object_to_json, **kwargs):
         
         self.json_default = json_default
-        self.compress = compress
         self.domain = socket.getfqdn()
 
     def pickle_log(self, record):
         return pack(
-            get_datadog_object(record, self.domain), self.compress, self.json_default
+            get_datadog_object(record, self.domain), self.json_default
         )
 
 
-class DataDogUdpHandler(BaseHandler, DatagramHandler):
+class DataDogUdpHandler(DatagramHandler):
     """
     A handler class which writes logging records, in pickle format, to
     a datagram socket.  The pickle which is sent is that of the LogRecord's
@@ -74,7 +74,7 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
     makeLogRecord function.
     """
 
-    def __init__(self, host, port, compress=False, **kwargs):
+    def __init__(self, host, port):
         """
         Initializes the handler with a specific host address and port.
 
@@ -85,7 +85,6 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
         """
 
         DatagramHandler.__init__(self, host, port)
-        BaseHandler.__init__(self, compress=compress, **kwargs)
 
     def makePickle(self, record):
         """
@@ -93,4 +92,12 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
         returns it ready for transmission across the socket.
         """
 
-        return self.pickle_log(record)
+        # return self.pickle_log(record)
+        ei = record.exc_info
+        if ei:
+            dummy = self.format(record) # just to get traceback text into record.exc_text
+            record.exc_info = None  # to avoid Unpickleable error
+        s = pickle.dumps(record.__dict__)
+        if ei:
+            record.exc_info = ei  # for next handler
+        return s
