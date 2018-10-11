@@ -88,7 +88,7 @@ class DataDogUdpHandler(BaseHandler, DatagramHandler):
     makeLogRecord function.
     """
 
-    def __init__(self, host, port, compress=True, chunk_size=1300, **kwargs):
+    def __init__(self, host, port, compress=False, chunk_size=1300, **kwargs):
         """
         Initializes the handler with a specific host address and port.
 
