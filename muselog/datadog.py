@@ -35,35 +35,6 @@ class DataDogUdpHandler(DatagramHandler):
         """
 
         DatagramHandler.__init__(self, host, port)
-    
-    def send(self, s):
-        """
-        Send a pickled string to the socket.
-
-        This function allows for partial sends which can happen when the
-        network is busy.
-        """
-        if self.sock is None:
-            self.createSocket()
-        #self.sock can be None either because we haven't reached the retry
-        #time yet, or because we have reached the retry time and retried,
-        #but are still unable to connect.
-        # if self.sock:
-        #     try:
-        #         if hasattr(self.sock, "sendall"):
-        #             self.sock.sendall(s.encode('utf-8'))
-        #         else:
-        #             sentsofar = 0
-        #             left = len(s)
-        #             while left > 0:
-        #                 sent = self.sock.sendto(bytearray(s[sentsofar:], 'utf-8'), self.address)
-        #                 sentsofar = sentsofar + sent
-        #                 left = left - sent
-        #     except socket.error:
-        #         self.sock.close()
-        #         self.sock = None  # so we can call createSocket next time
-        self.sock.sendall(s.encode('utf-8'))
-
 
     def makePickle(self, record):
         """
@@ -75,12 +46,10 @@ class DataDogUdpHandler(DatagramHandler):
         if ei:
             dummy = self.format(record) # just to get traceback text into record.exc_text
             record.exc_info = None  # to avoid Unpickleable error
-        d = dict(record.__dict__)
-        s = json.dumps(d)
+        s = pickle.dumps(record.__dict__)
         if ei:
             record.exc_info = ei  # for next handler
         return s
-
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
