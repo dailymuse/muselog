@@ -79,5 +79,4 @@ def setup_logging(root_log_level: Optional[str] = None,
         formatter = DataDogJSONFormatter()
         datadog_handler.setFormatter(formatter)
 
-        root_logger.addFilter()
         root_logger.addHandler(datadog_handler)
