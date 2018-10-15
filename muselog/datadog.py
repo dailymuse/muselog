@@ -9,21 +9,6 @@ import json
 from logging.handlers import DatagramHandler
 from logging import LogRecord
 
-def split(s, chunk_size):
-    header = b'\x1e\x0f'
-    message_id = os.urandom(8)
-    chunks = [s[pos:pos+chunk_size] for pos in range(0, len(s), chunk_size)]
-    number_of_chunks = len(chunks)
-
-    for chunk_index, chunk in enumerate(chunks):
-        yield b''.join((
-            header,
-            message_id,
-            struct.pack('b', chunk_index),
-            struct.pack('b', number_of_chunks),
-            chunk
-        ))
-
 
 def object_to_json(obj):
     """Convert object that cannot be natively serialized by python to JSON representation."""
@@ -84,6 +69,7 @@ class DataDogUdpHandler(DatagramHandler):
         if ei:
             record.exc_info = ei  # for next handler
         return s
+
 
 class DataDogJSONFormatter(json_log_formatter.JSONFormatter):
 
