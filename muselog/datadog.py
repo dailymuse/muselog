@@ -7,6 +7,23 @@ import json
 
 
 from logging.handlers import DatagramHandler
+from logging import LogRecord
+
+def split(s, chunk_size):
+    header = b'\x1e\x0f'
+    message_id = os.urandom(8)
+    chunks = [s[pos:pos+chunk_size] for pos in range(0, len(s), chunk_size)]
+    number_of_chunks = len(chunks)
+
+    for chunk_index, chunk in enumerate(chunks):
+        yield b''.join((
+            header,
+            message_id,
+            struct.pack('b', chunk_index),
+            struct.pack('b', number_of_chunks),
+            chunk
+        ))
+
 
 def object_to_json(obj):
     """Convert object that cannot be natively serialized by python to JSON representation."""
@@ -32,9 +49,24 @@ class DataDogUdpHandler(DatagramHandler):
 
         :param host: Datadog UDP input host
         :param port: Datadog UDP input port
+        :param chunk_size: length of a chunk, should be less than the MTU (maximum transmission unit)
         """
 
         DatagramHandler.__init__(self, host, port)
+
+    def send(self, s):
+        """
+        Send a pickled string to a socket.
+
+        This function no longer allows for partial sends which can happen
+        when the network is busy - UDP does not guarantee delivery and
+        can deliver packets out of sequence.
+        """
+
+        if self.sock is None:
+            self.createSocket()
+
+        self.sock.sendto(bytearray(s, 'utf-8'), self.host, self.port)
 
     def makePickle(self, record):
         """
@@ -46,12 +78,14 @@ class DataDogUdpHandler(DatagramHandler):
         if ei:
             dummy = self.format(record) # just to get traceback text into record.exc_text
             record.exc_info = None  # to avoid Unpickleable error
-        s = pickle.dumps(record.__dict__)
+        # s = pickle.dumps(record.__dict__)
+        d = dict(record.__dict__)
+        s = json.dumps(d.__dict__)
         if ei:
             record.exc_info = ei  # for next handler
         return s
 
-class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
+class DataDogJSONFormatter(json_log_formatter.JSONFormatter):
 
     def json_record(self, message, extra, record):
 
