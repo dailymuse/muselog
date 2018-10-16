@@ -65,7 +65,7 @@ class DataDogUdpHandler(DatagramHandler):
             record.exc_info = None  # to avoid Unpickleable error
         # s = pickle.dumps(record.__dict__)
         d = dict(record.__dict__)
-        s = json.dumps(d.__dict__)
+        s = json.dumps(d)
         if ei:
             record.exc_info = ei  # for next handler
         return s
