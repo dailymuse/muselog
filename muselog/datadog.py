@@ -50,7 +50,7 @@ class DataDogUdpHandler(DatagramHandler):
         if self.sock is None:
             self.createSocket()
 
-        self.sock.sendto(bytes(s+"\n", "utf-8"), (self.host,self.port))
+        self.sock.sendto(bytes(s+"\n", "utf-8"), (self.host, self.port))
 
     def makePickle(self, record):
         """
