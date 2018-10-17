@@ -3,7 +3,6 @@ Helpers to log tornado request information.
 """
 
 import logging
-import os
 
 
 logger = logging.getLogger(__name__)
@@ -22,13 +21,11 @@ def log_request(handler):
     else:
         log_method = logger.error
 
-    # get logs for graylog or datadog
-    if "GRAYLOG_HOST" or "DATADOG_HOST" in os.environ:
-        log_method("%d %s %.2fms", response_status, request_summary, request_time,
-                        extra={"request_method": handler.request.method,
-                        "request_path": handler.request.path,
-                        "request_query": handler.request.query,
-                        "response_status": response_status,
-                        "request_duration": request_time,
-                        "request_remote_ip": handler.request.remote_ip,
-                        "request_summary": request_summary})
+    log_method("%d %s %.2fms", response_status, request_summary, request_time,
+                    extra={"request_method": handler.request.method,
+                    "request_path": handler.request.path,
+                    "request_query": handler.request.query,
+                    "response_status": response_status,
+                    "request_duration": request_time,
+                    "request_remote_ip": handler.request.remote_ip,
+                    "request_summary": request_summary})
