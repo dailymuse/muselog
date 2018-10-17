@@ -6,7 +6,7 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
-from .datadog import DataDogUdpHandler, DataDogJSONFormatter
+from .datadog import DataDogUdpHandler
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -65,18 +65,11 @@ def setup_logging(root_log_level: Optional[str] = None,
         root_logger.addHandler(gelf_handler)
 
     # Add datadog handler if log to datadog is enabled
-    # https://docs.datadoghq.com/logs/log_collection/python/#configure-the-datadog-agent
     if "DATADOG_HOST" in os.environ:
         opts = dict(
             host=os.environ["DATADOG_HOST"],
             port=int(os.environ.get("DATADOG_UDP_PORT", 10518))
         )
 
-        # datadog_handler = logging.handlers.DatagramHandler(**opts)
         datadog_handler = DataDogUdpHandler(**opts)
-
-        # get and set datadog_handler formatter
-        formatter = DataDogJSONFormatter()
-        datadog_handler.setFormatter(formatter)
-
         root_logger.addHandler(datadog_handler)
