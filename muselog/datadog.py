@@ -4,10 +4,10 @@ import json_log_formatter
 import socket
 import traceback
 import json
+import zlib
 
 
 from logging.handlers import DatagramHandler
-from logging import LogRecord
 
 
 def object_to_json(obj):
@@ -34,7 +34,6 @@ class DataDogUdpHandler(DatagramHandler):
 
         :param host: Datadog UDP input host
         :param port: Datadog UDP input port
-        :param chunk_size: length of a chunk, should be less than the MTU (maximum transmission unit)
         """
 
         DatagramHandler.__init__(self, host, port)
@@ -51,7 +50,7 @@ class DataDogUdpHandler(DatagramHandler):
         if self.sock is None:
             self.createSocket()
 
-        self.sock.sendto(bytearray(s, 'utf-8'), self.host, self.port)
+        self.sock.sendto(s+"\n".encode("utf-8"), (self.host, self.port))
 
     def makePickle(self, record):
         """
