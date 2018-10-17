@@ -4,7 +4,6 @@ Helpers to log tornado request information.
 
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 def log_request(handler):
@@ -22,10 +21,10 @@ def log_request(handler):
         log_method = logger.error
 
     log_method("%d %s %.2fms", response_status, request_summary, request_time,
-                extra={"request_method": handler.request.method,
-                "request_path": handler.request.path,
-                "request_query": handler.request.query,
-                "response_status": response_status,
-                "request_duration": request_time,
-                "request_remote_ip": handler.request.remote_ip,
-                "request_summary": request_summary})
+               extra={"request_method": handler.request.method,
+                      "request_path": handler.request.path,
+                      "request_query": handler.request.query,
+                      "response_status": response_status,
+                      "request_duration": request_time,
+                      "request_remote_ip": handler.request.remote_ip,
+                      "request_summary": request_summary})
