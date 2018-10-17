@@ -1,5 +1,5 @@
 import json
-
+from logging.handlers import DatagramHandler
 
 class DataDogUdpHandler(DatagramHandler):
     """
