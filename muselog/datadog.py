@@ -1,5 +1,8 @@
 import json
+
+from logging import LogRecord
 from logging.handlers import DatagramHandler
+
 
 class DataDogUdpHandler(DatagramHandler):
     """
@@ -12,7 +15,7 @@ class DataDogUdpHandler(DatagramHandler):
     makeLogRecord function.
     """
 
-    def __init__(self, host, port):
+    def __init__(self, host: str, port: int):
         """
         Initializes the handler with a specific host address and port.
 
@@ -22,7 +25,7 @@ class DataDogUdpHandler(DatagramHandler):
 
         DatagramHandler.__init__(self, host, port)
 
-    def send(self, s):
+    def send(self, s: str):
         """
         Send a pickled string to a socket.
 
@@ -36,7 +39,7 @@ class DataDogUdpHandler(DatagramHandler):
 
         self.sock.sendto(bytes(s+"\n", "utf-8"), (self.host, self.port))
 
-    def makePickle(self, record):
+    def makePickle(self, record: LogRecord) -> str:
         """
         Pickles the record in binary format with a length prefix, and
         returns it ready for transmission across the socket.
