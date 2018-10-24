@@ -23,7 +23,7 @@ class DataDogUdpHandler(DatagramHandler):
         :param port: Datadog UDP input port
         """
 
-        DatagramHandler.__init__(self, host, port)
+        super().__init__(self, host, port)
 
     def send(self, s: str):
         """

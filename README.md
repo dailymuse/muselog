@@ -33,8 +33,8 @@ You must set following environment variables to enable Graylog integration.
 - GRAYLOG_TLS_PORT          :: Graylog server port that `tls` handler type sends GELF messages to. (Default: 12201).
 - GRAYLOG_TLS_TIMEOUT_SECS  :: Number of seconds to wait for TCP ack before abandoning message send.
 
-### Datadog integation
-You must set following environment variables to enable datadog integration.
+### Datadog integration
+You must set the following environment variables to enable datadog integration.
 
 - DATADOG_HOST            :: Datadog host to send JSON logs to
 - DATADOG_UDP_PORT        :: datadog server port that `udp` handler type sends messages to. (Default: 10518).
