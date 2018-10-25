@@ -47,5 +47,4 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
         self.handler.close()
 
     def test_datadog_handler_called(self):
-        h = self.handler
-        self.assertEqual(True, h.send.called)
+        self.assertEqual(True, self.handler.send.called)
