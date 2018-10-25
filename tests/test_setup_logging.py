@@ -40,7 +40,6 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
         self.logger = l = logging.getLogger()
 
         h.send = MagicMock(name='send')
-        l.setLevel(logging.INFO)
         l.addHandler(self.handler)
 
     def tearDown(self):
@@ -48,6 +47,5 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
         self.handler.close()
 
     def test_datadog_handler_called(self):
-        self.logger.info("Testing handler 1 2 3")
         h = self.handler
         self.assertEqual(True, h.send.called)
