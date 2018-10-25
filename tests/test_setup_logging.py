@@ -1,7 +1,10 @@
 import logging
 import unittest
 
+from unittest.mock import MagicMock
+
 import muselog
+from muselog.datadog import DataDogUdpHandler
 
 
 class SetupLoggingTestCase(unittest.TestCase):
@@ -28,3 +31,23 @@ class SetupLoggingTestCase(unittest.TestCase):
         self.assertEqual(logging.getLogger("testing").getEffectiveLevel(), logging.ERROR)
         self.assertEqual(logging.getLogger("testing.child").getEffectiveLevel(), logging.CRITICAL)
         self.assertEqual(logging.getLogger("string").getEffectiveLevel(), logging.INFO)
+
+
+class DataDogTestLoggingTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = h = DataDogUdpHandler(host="127.0.0.1", port=10518)
+        self.logger = l = logging.getLogger()
+
+        h.send = MagicMock(name='send')
+        l.setLevel(logging.INFO)
+        l.addHandler(self.handler)
+
+    def tearDown(self):
+        self.logger.removeHandler(self.handler)
+        self.handler.close()
+
+    def test_datadog_handler_called(self):
+        self.logger.info("Testing handler 1 2 3")
+        h = self.handler
+        self.assertEqual(True, h.send.called)
