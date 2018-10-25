@@ -47,4 +47,5 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
         self.handler.close()
 
     def test_datadog_handler_called(self):
+        self.logger.warning("Testing handler 1 2 3")
         self.assertEqual(True, self.handler.send.called)
