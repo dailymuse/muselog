@@ -36,8 +36,8 @@ class SetupLoggingTestCase(unittest.TestCase):
 class DataDogTestLoggingTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.handler = h = DataDogUdpHandler(host="127.0.0.1", port=10518)
-        self.logger = l = logging.getLogger('datadog')
+        self.handler = DataDogUdpHandler(host="127.0.0.1", port=10518)
+        self.logger = logging.getLogger('datadog')
 
     def tearDown(self):
         self.logger.removeHandler(self.handler)
