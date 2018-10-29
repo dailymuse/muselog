@@ -47,8 +47,8 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
          with self.assertLogs('datadog') as cm:
             self.handler.send = MagicMock(name='send')
 
-            self.logger.warning("Datadog msg")
             self.logger.addHandler(self.handler)
+            self.logger.warning("Datadog msg")
 
             self.assertEqual(True, self.logger.hasHandlers())
 
