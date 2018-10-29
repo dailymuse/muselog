@@ -6,6 +6,7 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
+from .datadog import DataDogUdpHandler
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -60,4 +61,15 @@ def setup_logging(root_log_level: Optional[str] = None,
                                           timeout=float(os.environ.get("GRAYLOG_TLS_TIMEOUT_SECS", 0.3)))
         else:
             raise ValueError("Graylog handler type '{}' not recognized. Valid types are 'udp' and 'tls'.".format(handler_type))
+
         root_logger.addHandler(gelf_handler)
+
+    # Add datadog handler if log to datadog is enabled
+    if "DATADOG_HOST" in os.environ:
+        opts = dict(
+            host=os.environ["DATADOG_HOST"],
+            port=int(os.environ.get("DATADOG_UDP_PORT", 10518))
+        )
+
+        datadog_handler = DataDogUdpHandler(**opts)
+        root_logger.addHandler(datadog_handler)
