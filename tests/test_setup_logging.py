@@ -37,15 +37,18 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
 
     def setUp(self):
         self.handler = h = DataDogUdpHandler(host="127.0.0.1", port=10518)
-        self.logger = l = logging.getLogger()
-
-        h.send = MagicMock(name='send')
-        l.addHandler(self.handler)
+        self.logger = l = logging.getLogger('datadog')
 
     def tearDown(self):
         self.logger.removeHandler(self.handler)
         self.handler.close()
 
     def test_datadog_handler_called(self):
-        self.logger.warning("Testing handler 1 2 3")
-        self.assertEqual(True, self.handler.send.called)
+         with self.assertLogs('datadog') as cm:
+            self.handler.send = MagicMock(name='send')
+            self.logger.addHandler(self.handler)
+            self.logger.warning("Datadog msg")
+
+            self.assertEqual(True, self.handler.send.called)
+            self.assertEqual(True, self.handler.hasHandlers)
+            self.assertEqual(cm.output, ['WARNING:datadog:Datadog msg'])
