@@ -77,7 +77,7 @@ def setup_logging(root_log_level: Optional[str] = None,
         root_logger.addHandler(datadog_handler)
 
     # Log to stdout if enabled
-    if "ENABLE_STDOUT_LOG" in os.environ:
+    if "ENABLE_STDOUT_LOG" in os.environ and os.environ["ENABLE_STDOUT_LOG"] is "True":
         stdout_handler = logging.StreamHandler(sys.stdout)
         formatter = json_log_formatter.JSONFormatter()
 
