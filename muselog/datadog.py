@@ -1,12 +1,11 @@
 import json
 import socket
-import datetime
 
+from datetime import datetime
 from logging import LogRecord
 from logging.handlers import DatagramHandler
 
 import json_log_formatter
-
 
 
 class DataDogUdpHandler(DatagramHandler):
