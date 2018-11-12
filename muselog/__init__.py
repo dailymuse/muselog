@@ -6,9 +6,7 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
-import json_log_formatter
-
-from .datadog import DataDogUdpHandler
+from .datadog import DataDogUdpHandler, DatadogJSONFormatter
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -79,7 +77,7 @@ def setup_logging(root_log_level: Optional[str] = None,
     # Log to stdout if enabled
     if "ENABLE_STDOUT_LOG" in os.environ and os.environ["ENABLE_STDOUT_LOG"] == "True":
         stdout_handler = logging.StreamHandler()
-        formatter = json_log_formatter.JSONFormatter()
+        formatter = DatadogJSONFormatter()
 
         stdout_handler.setFormatter(formatter)
         root_logger.addHandler(stdout_handler)

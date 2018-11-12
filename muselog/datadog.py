@@ -1,7 +1,12 @@
 import json
+import socket
+import datetime
 
 from logging import LogRecord
 from logging.handlers import DatagramHandler
+
+import json_log_formatter
+
 
 
 class DataDogUdpHandler(DatagramHandler):
@@ -54,3 +59,19 @@ class DataDogUdpHandler(DatagramHandler):
         if ei:
             record.exc_info = ei  # for next handler
         return s
+
+class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
+
+     def json_record(self, message, extra, record):
+         
+        extra['message'] = message
+        extra['host'] = socket.getfqdn()
+
+        record_dict = dict(record.__dict__)
+
+        if 'time' not in extra:
+            extra['time'] = datetime.utcnow()
+        if record.exc_info:
+            extra['fullMessage'] = '\n'.join(traceback.format_exception(*record.exc_info))
+
+        return {**extra, **record_dict}
