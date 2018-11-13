@@ -1,9 +1,10 @@
 from setuptools import setup
 
-VERSION = "1.3.0"
+VERSION = "1.4.0"
 
 install_requires = [
-    "pygelf>=0.4.1"
+    "pygelf>=0.4.1",
+    "JSON-log-formatter==0.1.0"
 ]
 
 setup(

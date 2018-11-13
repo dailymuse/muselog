@@ -6,7 +6,7 @@ from typing import Mapping, Optional, Union
 
 from pygelf import GelfUdpHandler, GelfTlsHandler
 
-from .datadog import DataDogUdpHandler
+from .datadog import DataDogUdpHandler, DatadogJSONFormatter
 
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
@@ -39,6 +39,11 @@ def setup_logging(root_log_level: Optional[str] = None,
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
+
+        # log to docker for datadog if enabled. 
+        if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"] == "True":
+            formatter = DatadogJSONFormatter()
+            console_handler.setFormatter(formatter)
 
     # Add GELF handler if GELF is enabled
     if "GRAYLOG_HOST" in os.environ:

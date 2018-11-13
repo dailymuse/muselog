@@ -39,6 +39,11 @@ You must set the following environment variables to enable datadog integration.
 - DATADOG_HOST            :: Datadog host to send JSON logs to
 - DATADOG_UDP_PORT        :: datadog server port that `udp` handler type sends messages to. (Default: 10518).
 
+
+### STDOUT Logging 
+- ENABLE_DATADOG_JSON_FORMATTER  :: set to `True` to enable datadog docker logging 
+
+
 ### Tornado integration
 Muselog provides a request hook for Tornado, which logs request data at the conclusion of each request.
 You can use this hook in your application by pointing Tornado's `log_function` setting to `muselog.tornado.log_request`.
