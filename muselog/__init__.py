@@ -40,6 +40,11 @@ def setup_logging(root_log_level: Optional[str] = None,
         console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
 
+        # log to docker for datadog if enabled. 
+        if "ENABLE_DD_DOCKER_LOG" in os.environ and os.environ["ENABLE_DD_DOCKER_LOG"] == "True":
+            formatter = DatadogJSONFormatter()
+            console_handler.setFormatter(formatter)
+
     # Add GELF handler if GELF is enabled
     if "GRAYLOG_HOST" in os.environ:
         common_opts = dict(
@@ -73,8 +78,3 @@ def setup_logging(root_log_level: Optional[str] = None,
 
         datadog_handler = DataDogUdpHandler(**opts)
         root_logger.addHandler(datadog_handler)
-
-    # Log to stdout if enabled
-    if "ENABLE_STDOUT_LOG" in os.environ and os.environ["ENABLE_STDOUT_LOG"] == "True":
-        formatter = DatadogJSONFormatter()
-        console_handler.setFormatter(formatter)

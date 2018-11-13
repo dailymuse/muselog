@@ -41,7 +41,7 @@ You must set the following environment variables to enable datadog integration.
 
 
 ### STDOUT Logging 
-- ENABLE_STDOUT_LOG  :: set to `True` to enable stdout logging 
+- ENABLE_DD_DOCKER_LOG  :: set to `True` to enable datadog docker logging 
 
 
 ### Tornado integration
