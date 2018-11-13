@@ -41,7 +41,7 @@ def setup_logging(root_log_level: Optional[str] = None,
         root_logger.addHandler(console_handler)
 
         # log to docker for datadog if enabled. 
-        if "ENABLE_DD_DOCKER_LOG" in os.environ and os.environ["ENABLE_DD_DOCKER_LOG"] == "True":
+        if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"] == "True":
             formatter = DatadogJSONFormatter()
             console_handler.setFormatter(formatter)
 
