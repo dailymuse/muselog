@@ -1,4 +1,9 @@
-"""Custom logging facilities to simplify the process of passing additional data to loggers."""
+"""Custom logging facilities to simplify the process of passing additional data to loggers.
+
+Note on add_console_handler: Python's root_logger by default adds a streamhandler if none is specified at app initialization
+if this is present we want it tracked and taken out later, not to be sent to datadog 
+(remove double entry as it doesn't have the JSON formatter for easy interpretation on Datadog)
+"""
 
 import logging
 import os
@@ -43,10 +48,6 @@ def setup_logging(root_log_level: Optional[str] = None,
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
-    
-        # Python's root_logger by default adds a streamhandler if none is specified at app initilization
-        # if this is present we want it tracked and taken out later, not to be sent to datadog 
-        # (remove double entry as it doesn't have the JSON formatter for easy interpretation on Datadog)
         if default_stdout_handler is not None:
             root_logger.removeHandler(default_stdout_handler)
 
