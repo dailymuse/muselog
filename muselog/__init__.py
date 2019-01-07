@@ -32,7 +32,7 @@ def setup_logging(root_log_level: Optional[str] = None,
     root_logger.setLevel(root_log_level)
     default_stdout_handler = None
 
-    if len(root_logger.handlers) > 0:
+    if root_logger.handlers:
         default_stdout_handler = root_logger.handlers[0]
 
     if module_log_levels:
