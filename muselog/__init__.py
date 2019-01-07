@@ -1,8 +1,4 @@
 """Custom logging facilities to simplify the process of passing additional data to loggers.
-
-Note on add_console_handler: Python's root_logger by default adds a streamhandler if none is specified at app initialization
-if this is present we want it tracked and taken out later, not to be sent to datadog 
-(remove double entry as it doesn't have the JSON formatter for easy interpretation on Datadog)
 """
 
 import logging
@@ -27,6 +23,12 @@ def setup_logging(root_log_level: Optional[str] = None,
     :param root_log_level: The log level all loggers use by default. (Default: `"WARNING"`)
     :param module_log_levels: A mapping of module names to their desired log levels.
     :param add_console_handler: If `True`, enable logging to stdout. (Default: `True`).
+                                Python's root_logger by default adds a StreamHandler
+                                if none is specified at app initialization, if this 
+                                is present we want it tracked and taken out later,
+                                not to be sent to datadog (remove double entry as 
+                                it doesn't have the JSON formatter for easy interpretation on 
+                                Datadog)
     :param console_handler_format: Specifies the format of stdout logs. (Default: `DEFAULT_LOG_FORMAT`).
     """
 
