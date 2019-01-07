@@ -1,5 +1,4 @@
-"""Custom logging facilities to simplify the process of passing additional data to loggers.
-"""
+"""Custom logging facilities to simplify the process of passing additional data to loggers."""
 
 import logging
 import os
