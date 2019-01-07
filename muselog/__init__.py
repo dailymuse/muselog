@@ -30,11 +30,10 @@ def setup_logging(root_log_level: Optional[str] = None,
 
     root_logger = logging.getLogger()
     root_logger.setLevel(root_log_level)
-    default_handler_exist = False
+    default_stdout_handler = None
 
-    if root_logger.handlers != []:
-        default_stdout_logger = root_logger.handlers[0]
-        default_handler_exist = True
+    if len(root_logger.handlers) > 0:
+        default_stdout_handler = root_logger.handlers[0]
 
     if module_log_levels:
         for module_name, log_level in module_log_levels.items():
@@ -44,8 +43,8 @@ def setup_logging(root_log_level: Optional[str] = None,
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT))
         root_logger.addHandler(console_handler)
-        if default_handler_exist:
-            root_logger.removeHandler(default_stdout_logger)
+        if default_stdout_handler is not None:
+            root_logger.removeHandler(default_stdout_handler)
 
         # log to docker for datadog if enabled. 
         if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"] == "True":
