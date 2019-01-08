@@ -1,5 +1,6 @@
 import json
 import socket
+import traceback
 
 from datetime import datetime
 from logging import LogRecord
@@ -62,7 +63,7 @@ class DataDogUdpHandler(DatagramHandler):
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
      def json_record(self, message, extra, record):
-         
+
         extra['message'] = message
         extra['host'] = socket.getfqdn()
 
@@ -71,6 +72,6 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         if 'time' not in extra:
             extra['time'] = datetime.utcnow()
         if record.exc_info:
-            extra['fullMessage'] = '\n'.join(traceback.format_exception(*record.exc_info))
+            extra['exception'] = '\n'.join(traceback.format_exception(*record.exc_info))
 
         return {**extra, **record_dict}
