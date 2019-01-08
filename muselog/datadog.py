@@ -1,5 +1,6 @@
 import json
 import socket
+import traceback
 
 from datetime import datetime
 from logging import LogRecord
