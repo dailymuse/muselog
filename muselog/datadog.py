@@ -65,8 +65,6 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
      def json_record(self, message, extra, record):
 
         extra['message'] = message
-        extra['host'] = socket.getfqdn()
-
         record_dict = dict(record.__dict__)
 
         if 'time' not in extra:
