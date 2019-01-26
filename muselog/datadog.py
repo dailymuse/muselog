@@ -1,3 +1,4 @@
+import inspect
 import json
 import socket
 import traceback
@@ -60,16 +61,42 @@ class DataDogUdpHandler(DatagramHandler):
             record.exc_info = ei  # for next handler
         return s
 
+
+# reference: https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
+class ObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, "to_json"):
+            return self.default(obj.to_json())
+        elif hasattr(obj, "__dict__"):
+            return obj.__class__.__name__
+        elif hasattr(obj, "tb_frame"):
+            return "traceback"
+
+        return super(ObjectEncoder, self).default(obj)
+
+
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
-     def json_record(self, message, extra, record):
+    def format(self, record):
+        message = record.getMessage()
+        extra = self.extra_from_record(record)
+        json_record = self.json_record(message, extra, record)
+        mutated_record = self.mutate_json_record(json_record)
+        # Backwards compatibility: Functions that overwrite this but don't
+        # return a new value will return None because they modified the
+        # argument passed in.
+        if mutated_record is None:
+            mutated_record = json_record
+        return self.json_lib.dumps(mutated_record, cls=ObjectEncoder)
 
+    def json_record(self, message, extra, record):
+        
         extra['message'] = message
         record_dict = dict(record.__dict__)
 
         if 'time' not in extra:
             extra['time'] = datetime.utcnow()
         if record.exc_info:
-            extra['exception'] = '\n'.join(traceback.format_exception(*record.exc_info))
+            extra['exc_info'] = self.formatException(record.exc_info)
 
         return {**extra, **record_dict}
