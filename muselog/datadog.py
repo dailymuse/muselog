@@ -62,7 +62,6 @@ class DataDogUdpHandler(DatagramHandler):
         return s
 
 
-# reference: https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
 class ObjectEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj, "to_json"):
