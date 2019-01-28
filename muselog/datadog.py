@@ -96,6 +96,6 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         if 'time' not in extra:
             extra['time'] = datetime.utcnow()
         if record.exc_info:
-            extra['exc_info'] = self.formatException(record.exc_info)
+            extra['exception'] = self.formatException(record.exc_info)
 
         return {**extra, **record_dict}
