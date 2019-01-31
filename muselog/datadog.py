@@ -70,7 +70,7 @@ class ObjectEncoder(json.JSONEncoder):
         elif hasattr(obj, "tb_frame"):
             return "traceback"
 
-        return super(ObjectEncoder, self).default(obj)
+        return super().default(obj)
 
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
