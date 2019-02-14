@@ -70,7 +70,7 @@ class ObjectEncoder(json.JSONEncoder):
         elif hasattr(obj, "tb_frame"):
             return "traceback"
         elif isinstance(obj, timedelta):
-            return obj__str__()
+            return obj.__str__()
 
         return super().default(obj)
 
