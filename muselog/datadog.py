@@ -2,7 +2,7 @@ import json
 import socket
 import traceback
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging import LogRecord
 from logging.handlers import DatagramHandler
 
@@ -69,6 +69,8 @@ class ObjectEncoder(json.JSONEncoder):
             return obj.__class__.__name__
         elif hasattr(obj, "tb_frame"):
             return "traceback"
+        elif isinstance(obj, timedelta):
+            return obj__str__()
 
         return super().default(obj)
 
