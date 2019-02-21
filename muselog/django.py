@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -17,23 +17,15 @@ class MuseDjangoRequestLoggingMiddleware(object):
         return response
 
     def process_request(self, request):
-        request.started_at = datetime.datetime.utcnow().timestamp()
+        request.started_at = datetime.utcnow().timestamp()
 
     def process_response(self, request, response):
         response_status = response.status_code
-        request_time = 1000.0 * datetime.datetime.utcnow().timestamp() - \
-            request.started_at
+        request_time = 1000.0 * datetime.utcnow().timestamp() - request.started_at
         request_ip = self.get_client_ip(request)
         request_summary = f"{request.method} {request.get_full_path()} ({request_ip})"
 
-        if response_status < 400:
-            log_method = self.logger.info
-        elif response_status < 500:
-            log_method = self.logger.warning
-        else:
-            log_method = self.logger.error
-
-        log_method(
+        self.logger.debug(
             "%d %s %.2fms",
             response_status,
             request_summary,

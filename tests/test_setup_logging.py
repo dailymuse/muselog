@@ -83,23 +83,9 @@ class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
         self.middleware.process_request(self.request)
         self.assertIsInstance(self.request.started_at, float)
 
-    def test_process_response_when_success(self):
-        self.logger.info = Mock()
+    def test_process_response(self):
+        self.logger.debug = Mock()
         self.response.status_code = 200
         self.request.started_at = 0
         self.middleware.process_response(self.request, self.response)
-        self.logger.info.assert_called_once()
-
-    def test_process_response_when_client_error(self):
-        self.logger.warning = Mock()
-        self.response.status_code = 404
-        self.request.started_at = 0
-        self.middleware.process_response(self.request, self.response)
-        self.logger.warning.assert_called_once()
-
-    def test_process_response_when_server_error(self):
-        self.logger.error = Mock()
-        self.response.status_code = 500
-        self.request.started_at = 0
-        self.middleware.process_response(self.request, self.response)
-        self.logger.error.assert_called_once()
+        self.logger.debug.assert_called_once()
