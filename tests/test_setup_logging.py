@@ -1,10 +1,11 @@
 import logging
 import unittest
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import muselog
 from muselog.datadog import DataDogUdpHandler
+from muselog.django import MuseDjangoRequestLoggingMiddleware
 
 
 class SetupLoggingTestCase(unittest.TestCase):
@@ -54,3 +55,37 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
 
             self.assertEqual(True, self.handler.send.called)
             self.assertEqual(cm.output, ['WARNING:datadog:Datadog msg'])
+
+
+class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.logger = Mock()
+        self.response = Mock
+        self.request = self.get_mock_request()
+
+        def get_response():
+            self.response
+
+        self.middleware = MuseDjangoRequestLoggingMiddleware(get_response)
+        self.middleware.set_logger(self.logger)
+
+    def get_mock_request(self):
+        request = Mock()
+        request.started_at = 0
+        request.META = {
+            "HTTP_X_FORWARDED_FOR": "ip1, ip2",
+            "REMOTE_ADDR": "ip3"
+        }
+        return request
+
+    def test_process_request(self):
+        self.middleware.process_request(self.request)
+        self.assertIsInstance(self.request.started_at, float)
+
+    def test_process_response(self):
+        self.logger.debug = Mock()
+        self.response.status_code = 200
+        self.request.started_at = 0
+        self.middleware.process_response(self.request, self.response)
+        self.logger.debug.assert_called_once()
