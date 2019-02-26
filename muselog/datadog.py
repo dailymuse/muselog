@@ -8,8 +8,6 @@ from logging.handlers import DatagramHandler
 
 import json_log_formatter
 
-record_dict = dict()
-
 
 class DataDogUdpHandler(DatagramHandler):
     """
@@ -91,19 +89,9 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
             mutated_record = json_record
         return self.json_lib.dumps(mutated_record, cls=ObjectEncoder)
     
-    def key_val(self, item):
-        global record_dict
-
-        context_obj = {}
-        key, val = item.split("=")
-        # del key from record before replacing with modified version
-        del record_dict[key]
-        key = f"ctx.{key}"
-        context_obj[key]=int(val) if val.isdigit() else val
-        return context_obj
 
     def json_record(self, message, extra, record):
-        global record_dict
+        context_obj = {}
 
         extra['message'] = message
         record_dict = dict(record.__dict__)
@@ -112,8 +100,14 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
             context_value = record_dict.get("context")
             array = context_value.replace(" ", "").split(",")
             for item in array:
-                context_obj=self.key_val(item)
-                extra.update(context_obj)
+                key, val = item.split("=")
+
+                # del key from record before replacing with modified version
+                del record_dict[key]
+
+                key = f"ctx.{key}"
+                context_obj[key]=int(val) if val.isdigit() else val
+                record_dict.update(context_obj)
 
             del record_dict['context']
 
