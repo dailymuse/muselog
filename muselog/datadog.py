@@ -88,11 +88,27 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         if mutated_record is None:
             mutated_record = json_record
         return self.json_lib.dumps(mutated_record, cls=ObjectEncoder)
+    
+    def key_val(item):
+        context_obj = {}
+        key, val = item.split("=")
+        key = f"ctx.{key}"
+        context_obj[key]=int(val) if val.isdigit() else val
+        return context_obj
 
     def json_record(self, message, extra, record):
         
         extra['message'] = message
         record_dict = dict(record.__dict__)
+
+        if "context" in extra:
+            context_value = extra.get("context")
+            array = context_value.replace(" ", "").split(",")
+            for item in array:
+                context_obj=self.key_val(item)
+                extra.update(context_obj)
+
+            del extra['context']
 
         if 'time' not in extra:
             extra['time'] = datetime.utcnow()
