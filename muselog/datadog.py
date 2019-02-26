@@ -91,7 +91,7 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
             mutated_record = json_record
         return self.json_lib.dumps(mutated_record, cls=ObjectEncoder)
     
-    def key_val(item):
+    def key_val(self, item):
         global record_dict
 
         context_obj = {}
