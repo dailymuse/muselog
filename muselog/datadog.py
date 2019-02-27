@@ -78,7 +78,8 @@ class ObjectEncoder(json.JSONEncoder):
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
     def format(self, record):
-        json_record = self.json_record(record)
+        message = record.getMessage()
+        json_record = self.json_record(message, record)
         mutated_record = self.mutate_json_record(json_record)
         # Backwards compatibility: Functions that overwrite this but don't
         # return a new value will return None because they modified the
@@ -93,10 +94,11 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         """
         return self.json_lib.dumps(record, cls=ObjectEncoder)
 
-    def json_record(self, record):
+    def json_record(self, message, record):
         context_obj = {}
-
         record_dict = dict(record.__dict__)
+
+        record_dict['message'] = message
 
         if "context" in record_dict:
             context_value = record_dict.get("context")
