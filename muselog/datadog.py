@@ -108,7 +108,7 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
                 del record_dict[key]
 
                 key = f"ctx.{key}"
-                context_obj[key]=int(val) if val.isdigit() else val
+                context_obj[key] = int(val) if val.isdigit() else val
                 record_dict.update(context_obj)
 
             del record_dict['context']
