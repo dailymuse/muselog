@@ -78,22 +78,24 @@ class ObjectEncoder(json.JSONEncoder):
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
     def format(self, record):
-        message = record.getMessage()
-        extra = self.extra_from_record(record)
-        json_record = self.json_record(message, extra, record)
+        json_record = self.json_record(record)
         mutated_record = self.mutate_json_record(json_record)
         # Backwards compatibility: Functions that overwrite this but don't
         # return a new value will return None because they modified the
         # argument passed in.
         if mutated_record is None:
             mutated_record = json_record
-        return self.json_lib.dumps(mutated_record, cls=ObjectEncoder)
-    
+        return self.to_json(mutated_record)
 
-    def json_record(self, message, extra, record):
+    def to_json(self, record):
+        """Converts record dict to a JSON string.
+        Override this method to change the way dict is converted to JSON.
+        """
+        return self.json_lib.dumps(record, cls=ObjectEncoder)
+
+    def json_record(self, record):
         context_obj = {}
 
-        extra['message'] = message
         record_dict = dict(record.__dict__)
 
         if "context" in record_dict:
@@ -111,9 +113,9 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
             del record_dict['context']
 
-        if 'time' not in extra:
-            extra['time'] = datetime.utcnow()
+        if 'time' not in record_dict:
+            record_dict['time'] = datetime.utcnow()
         if record.exc_info:
-            extra['exception'] = self.formatException(record.exc_info)
+            record_dict['exception'] = self.formatException(record.exc_info)
 
-        return {**extra, **record_dict}
+        return record_dict
