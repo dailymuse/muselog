@@ -33,6 +33,7 @@ class SetupLoggingTestCase(unittest.TestCase):
         self.assertEqual(logging.getLogger("testing.child").getEffectiveLevel(), logging.CRITICAL)
         self.assertEqual(logging.getLogger("string").getEffectiveLevel(), logging.INFO)
 
+
 class DataDogTestLoggingTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -54,6 +55,7 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
 
             self.assertEqual(True, self.handler.send.called)
             self.assertEqual(cm.output, ['WARNING:datadog:Datadog msg'])
+
 
 class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
 

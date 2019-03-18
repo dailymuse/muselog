@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from muselog import DatadogJSONFormatter
 
+
 class InjectTraceValuesTestCase(unittest.TestCase):
     """
     Tests code related to injecting logs with a trace and span id.
