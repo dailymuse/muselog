@@ -5,7 +5,7 @@ VERSION = "1.5.2"
 install_requires = [
     "pygelf>=0.4.1",
     "JSON-log-formatter==0.2.0",
-    "ddtrace==0.12"
+    "ddtrace==0.22.0" # This is the minimum version allowed as trace helpers weren't added until 0.22.0
 ]
 
 setup(
