@@ -87,8 +87,6 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         """
         Injects logs with a 'trace_id' and 'span_id'. If a trace is active this helps DD
         to correlate logs sent to that specific trace in APM.
-
-
         """
         if not self.trace_enabled:
             return record
