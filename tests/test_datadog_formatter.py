@@ -12,7 +12,7 @@ class InjectTraceValuesTestCase(unittest.TestCase):
     def test_inject_trace_values_present(self):
         msg = "this is a test message"
         original_record = {'msg': msg}
-        dfcls = DatadogJSONFormatter()
+        dfcls = DatadogJSONFormatter(trace_enabled=True)
         modified_record = dfcls.inject_trace_values(original_record)
         self.assertDictEqual(modified_record, {'msg': msg, 'dd.trace_id': 0, 'dd.span_id': 0})
 

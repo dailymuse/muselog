@@ -33,12 +33,6 @@ class SetupLoggingTestCase(unittest.TestCase):
         self.assertEqual(logging.getLogger("testing.child").getEffectiveLevel(), logging.CRITICAL)
         self.assertEqual(logging.getLogger("string").getEffectiveLevel(), logging.INFO)
 
-    def test_trace_and_span_id(self):
-        muselog.setup_logging(root_log_level="INFO")
-
-        logger = logging.getLogger()
-        logger.info("LOL")
-
 class DataDogTestLoggingTestCase(unittest.TestCase):
 
     def setUp(self):
