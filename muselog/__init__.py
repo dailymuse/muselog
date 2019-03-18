@@ -54,7 +54,7 @@ def setup_logging(root_log_level: Optional[str] = None,
 
         # log to docker for datadog if enabled. 
         if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"] == "True":
-            formatter = DatadogJSONFormatter()
+            formatter = DatadogJSONFormatter(trace_enabled=os.getenv("DATADOG_TRACE_ENABLED"))
             console_handler.setFormatter(formatter)
 
     # Add GELF handler if GELF is enabled

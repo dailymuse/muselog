@@ -1,2 +1,3 @@
 git+git://github.com/dailymuse/pygelf.git@0.4.1#egg=pygelf
+ddtrace==0.22.0
 JSON-log-formatter==0.1.0

@@ -8,6 +8,7 @@ from logging.handlers import DatagramHandler
 
 import json_log_formatter
 
+from ddtrace import helpers
 
 class DataDogUdpHandler(DatagramHandler):
     """
@@ -77,10 +78,35 @@ class ObjectEncoder(json.JSONEncoder):
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
+    trace_enabled = False
+
+    def __init__(self, trace_enabled=False):
+        self.trace_enabled = trace_enabled
+
+    def inject_trace_values(self, record):
+        """
+        Injects logs with a 'trace_id' and 'span_id'. If a trace is active this helps DD
+        to correlate logs sent to that specific trace in APM.
+        """
+        if not self.trace_enabled:
+            return record
+
+        # Create a new record so we don't modify the original
+        new_record = record.copy()
+
+        # get correlation ids from current tracer context
+        trace_id, span_id = helpers.get_correlation_ids()
+
+        new_record['dd.trace_id'] = trace_id or 0
+        new_record['dd.span_id'] = span_id or 0
+
+        return new_record
+
     def format(self, record):
         message = record.getMessage()
         json_record = self.json_record(message, record)
-        mutated_record = self.mutate_json_record(json_record)
+        trace_injected_record = self.inject_trace_values(json_record)
+        mutated_record = self.mutate_json_record(trace_injected_record)
         # Backwards compatibility: Functions that overwrite this but don't
         # return a new value will return None because they modified the
         # argument passed in.
