@@ -72,8 +72,15 @@ class ObjectEncoder(json.JSONEncoder):
             return "traceback"
         elif isinstance(obj, timedelta):
             return obj.__str__()
-
-        return super().default(obj)
+        else:
+            # generic, captures all python classes irrespective. 
+            cls = type(obj)
+            result = {
+                '__custom__': True,
+                '__module__': cls.__module__,
+                '__name__': cls.__name__,
+            }
+            return result
 
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
