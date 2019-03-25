@@ -126,20 +126,25 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
         record_dict['message'] = message
 
-        if "context" in record_dict:
-            context_value = record_dict.get("context")
-            array = context_value.replace(" ", "").split(",")
-            for item in array:
-                key, val = item.split("=")
+        try:
+            if "context" in record_dict:
+                context_value = record_dict.get("context")
+                array = context_value.replace(" ", "").split(",")
+                for item in array:
+                    key, val = item.split("=")
 
-                # del key from record before replacing with modified version
-                del record_dict[key]
+                    # del key from record before replacing with modified version
+                    del record_dict[key]
 
-                key = f"ctx.{key}"
-                context_obj[key] = int(val) if val.isdigit() else val
-                record_dict.update(context_obj)
+                    key = f"ctx.{key}"
+                    context_obj[key] = int(val) if val.isdigit() else val
+                    record_dict.update(context_obj)
 
-            del record_dict['context']
+                del record_dict['context']
+        except Exception as e:
+            # This will allow the context come in as a regular string if it
+            # it is not empty although I suspect an empty context here.
+            record_dict["context_error"] = str(e)
 
         if 'time' not in record_dict:
             record_dict['time'] = datetime.utcnow()
