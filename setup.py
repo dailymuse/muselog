@@ -1,6 +1,5 @@
+import muselog
 from setuptools import setup
-
-VERSION = "1.6.2"
 
 install_requires = [
     "pygelf>=0.4.1",
@@ -10,7 +9,7 @@ install_requires = [
 
 setup(
     name="muselog",
-    version=VERSION,
+    version=muselog.__version__,
     description="themuse.com log utilities",
     zip_safe=False,
 

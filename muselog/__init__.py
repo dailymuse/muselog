@@ -8,6 +8,8 @@ from pygelf import GelfUdpHandler, GelfTlsHandler
 
 from .datadog import DataDogUdpHandler, DatadogJSONFormatter
 
+__version__ = "1.6.2"
+
 #: Format to use
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s"
 
