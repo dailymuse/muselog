@@ -16,6 +16,14 @@ jobs:
           command: |
             . venv/bin/activate
             python -m unittest tests.test_setup_logging
-            python setup.py sdist
-            PACKAGE_VERSION=$(python3 -c "import muselog; print(muselog.__version__)")
-            curl -F package=@./dist/muselog-$PACKAGE_VERSION.tar.gz https://$GEMFURY_TOKEN@push.fury.io/themuse/
+            
+      - run:
+          name: Publish to GemFury
+          command: |
+            branch="$CIRCLE_BRANCH"
+            if [[ "$branch" == "master" ]];
+              . venv/bin/activate
+              python setup.py sdist
+              PACKAGE_VERSION=$(python3 -c "import muselog; print(muselog.__version__)")
+              curl -F package=@./dist/muselog-$PACKAGE_VERSION.tar.gz https://$GEMFURY_TOKEN@push.fury.io/themuse/
+            then
