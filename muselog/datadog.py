@@ -1,9 +1,10 @@
 """Module that houses all logic necessary to send well-formed logs to Datadog."""
 
 import json
+import sys
 from typing import Any, Mapping
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from logging import LogRecord
 from logging.handlers import DatagramHandler
 
@@ -93,32 +94,10 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         """
         self.trace_enabled = trace_enabled
 
-    def inject_trace_values(self, record: LogRecord):
-        """Inject logs with a 'trace_id' and 'span_id'.
-
-        If a trace is active this helps DD to correlate logs sent to that specific
-        trace in APM.
-        """
-        if not self.trace_enabled:
-            return record
-
-        # Create a new record so we don't modify the original
-        new_record = record.copy()
-
-        # get correlation ids from current tracer context
-        trace_id, span_id = helpers.get_correlation_ids()
-
-        new_record["dd.trace_id"] = trace_id or 0
-        new_record["dd.span_id"] = span_id or 0
-
-        return new_record
-
     def format(self, record: LogRecord):
         """Return the record in the format usable by Datadog."""
-        message = record.getMessage()
-        json_record = self.json_record(message, record)
-        trace_injected_record = self.inject_trace_values(json_record)
-        mutated_record = self.mutate_json_record(trace_injected_record)
+        json_record = self.json_record(record.getMessage(), record)
+        mutated_record = self.mutate_json_record(json_record)
         # Backwards compatibility: Functions that overwrite this but don't
         # return a new value will return None because they modified the
         # argument passed in.
@@ -139,13 +118,33 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
         record_dict["message"] = message
 
-        if "time" not in record_dict:
-            record_dict["time"] = datetime.utcnow()
-        if record.exc_info:
-            record_dict["exception"] = self.formatException(record.exc_info)
+        if "timestamp" not in record_dict:
+            # UNIX time in milliseconds
+            record_dict["timestamp"] = int(record.created * 1000)
 
-        # Handle non-standard attributes
+        if "severity" not in record_dict:
+            record_dict["severity"] = record.levelname
+
+        # Source Code
+        if "logger.name" not in record_dict:
+            record_dict["logger.name"] = record.name
+        if "logger.method_name" not in record_dict:
+            record_dict["logger.method_name"] = record.funcName
+        if "logger.thread_name" not in record_dict:
+            record_dict["logger.thread_name"] = record.threadName
+
+        # NOTE: We do not inject 'host', 'source', or 'service', as we want
+        # Datadog agent and docker labels to handle that for the time being.
+        # This may change.
+
+        exc_info = record.exc_info
         try:
+            if self.trace_enabled:
+                # get correlation ids from current tracer context
+                trace_id, span_id = helpers.get_correlation_ids()
+                record_dict["dd.trace_id"] = trace_id or 0
+                record_dict["dd.span_id"] = span_id or 0
+
             if "context" in record_dict:
                 context_obj = dict()
                 context_value = record_dict.get("context")
@@ -154,16 +153,33 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
                     key, val = item.split("=")
 
                     # del key from record before replacing with modified version
-                    del record_dict[key]
+                    # NOTE: This is hacky. Need to provide a general purpose
+                    # context-aware logger.
+                    if key in record_dict:
+                        del record_dict[key]
 
                     key = f"ctx.{key}"
                     context_obj[key] = int(val) if val.isdigit() else val
                     record_dict.update(context_obj)
 
                 del record_dict["context"]
-        except Exception as e:
-            # This will allow the context come in as a regular string if it
-            # it is not empty although I suspect an empty context here.
-            record_dict["context_error"] = str(e)
+        except Exception:
+            exc_info = sys.exc_info()
+
+        # Handle exceptions, including those in our formatter
+        if exc_info:
+            # QUESTION: If exc_info was set by us, do we alter the log level?
+            # Probably not, as a formatter should never be altering the record
+            # directly.
+            # I think that instead we should avoid code that can conveivably
+            # raise exceptions in our formatter. That is not possible until we update
+            # the context handling code and we can ensure helpers.get_correlation_ids()
+            # will not raise any exceptions.
+            if "error.kind" not in record_dict:
+                record_dict["error.kind"] = exc_info[0].__name__
+            if "error.message" not in record_dict:
+                record_dict["error.message"] = str(exc_info[1])
+            if "error.stack" not in record_dict:
+                record_dict["error.stack"] = self.formatException(exc_info)
 
         return record_dict

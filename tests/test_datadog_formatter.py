@@ -1,34 +1,122 @@
+import io
+import json
 import logging
+import time
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+
+from freezegun import freeze_time
 
 from muselog import DatadogJSONFormatter
 
 
 class InjectTraceValuesTestCase(unittest.TestCase):
-    """
-    Tests code related to injecting logs with a trace and span id.
-    """
+    """Tests code related to injecting logs with a trace and span id."""
 
-    def test_inject_trace_values_present(self):
-        msg = "this is a test message"
-        original_record = {'msg': msg}
-        dfcls = DatadogJSONFormatter(trace_enabled=True)
-        modified_record = dfcls.inject_trace_values(original_record)
-        self.assertDictEqual(modified_record, {'msg': msg, 'dd.trace_id': 0, 'dd.span_id': 0})
+    def setUp(self):
+        self.output = io.StringIO()
+        self.logger = logging.getLogger("test")
+        self.logger.setLevel(logging.INFO)
+        self.logger.propagate = False
 
-    def test_inject_trace_values_not_present(self):
-        """
-        If 'inject_trace_values' is not able to find the 'ddtrace' package we
-        don't want to attempt an import of 'ddtrace' and cause an error.
-        """
-        msg = "this is a test message"
-        original_record = {'msg': msg}
-        dfcls = DatadogJSONFormatter()
+        self.handler = logging.StreamHandler(self.output)
+        self.logger.addHandler(self.handler)
 
-        # Patch the 'find_spec' call to simulate the ddtrace package not existing
-        with patch('importlib.util.find_spec') as mock:
-            mock.return_value = None
-            modified_record = dfcls.inject_trace_values(original_record)
+        self.formatter = DatadogJSONFormatter()
+        self.handler.setFormatter(self.formatter)
 
-        self.assertDictEqual(modified_record, original_record)
+    def tearDown(self):
+        self.logger.handlers = []
+        self.output.close()
+
+    @freeze_time("2019-04-03 20:00:00")
+    def test_dd_attributes_present(self):
+
+        self.logger.info("this is a test message")
+        output = json.loads(self.output.getvalue())
+
+        self.assertEqual(output["message"], "this is a test message")
+        self.assertEqual(output["timestamp"], int(time.time() * 1000))
+        self.assertEqual(output["severity"], "INFO")
+        self.assertEqual(output["logger.name"], "test")
+        self.assertEqual(output["logger.method_name"], "test_dd_attributes_present")
+        self.assertEqual(output["logger.thread_name"], "MainThread")
+
+    def test_dd_exception_attributes(self):
+        try:
+            raise Exception("All is well.")
+        except Exception:
+            self.logger.exception("OH SHIT THERE'S A HUGE EXCEPTION IN HERE")
+        output = json.loads(self.output.getvalue())
+
+        # Exception log level should translate to 'ERROR' severity
+        self.assertEqual(output["severity"], "ERROR")
+
+        # Should populate 'error' fields
+        self.assertEqual(output["error.kind"], "Exception")
+        self.assertEqual(output["error.message"], "All is well.")
+        # Just make sure the stack is populated. Not going to do an exact
+        # comparison.
+        self.assertIn("error.stack", output)
+
+    def test_context_attributes(self):
+        self.logger.info("Here's some context for u", extra={"context": "test=f"})
+        output = json.loads(self.output.getvalue())
+
+        self.assertEqual(output["ctx.test"], "f")
+
+    def test_bad_context_attributes(self):
+        # TODO: Fix the bad context values bug so we can get this test outta here.
+
+        self.logger.info("Here's some context for u", extra={"context": "test=f, ok"})
+        output = json.loads(self.output.getvalue())
+
+        # Let's do a sanity test to see that an error raised during context extraction
+        # gets recorded into the 'error' fields
+
+        # log level should NOT be altered
+        self.assertEqual(output["severity"], "INFO")
+
+        # Should populate 'error' fields
+        self.assertEqual(output["error.kind"], "ValueError")
+        self.assertEqual(output["error.message"], "not enough values to unpack (expected 2, got 1)")
+
+    def test_bad_context_attributes_prior_exc(self):
+        # TODO: Fix the bad context values bug so we can get this test outta here.
+
+        try:
+            raise Exception("All is well.")
+        except Exception:
+            self.logger.exception("Here's some context for u", extra={"context": "test=f, ok"})
+        output = json.loads(self.output.getvalue())
+
+        # Let's do a sanity test to see that an error raised during context extraction
+        # gets recorded into the 'error' fields
+
+        # log level should NOT be altered
+        self.assertEqual(output["severity"], "ERROR")
+
+        # Should populate 'error' fields with the /new/ error info
+        self.assertEqual(output["error.kind"], "ValueError")
+        self.assertEqual(output["error.message"], "not enough values to unpack (expected 2, got 1)")
+
+        # The traceback should have the entire exception chain.
+        # We'll just do a simple containment check to see.
+        self.assertIn("Exception: All is well.", output["error.stack"])
+
+    def test_trace_enabled_true(self):
+        self.formatter.trace_enabled = True
+
+        self.logger.info("this is a test message")
+        output = json.loads(self.output.getvalue())
+
+        self.assertEqual(output["dd.trace_id"], 0)
+        self.assertEqual(output["dd.span_id"], 0)
+
+    def test_trace_enabled_false(self):
+        self.formatter.trace_enabled = False
+
+        self.logger.info("this is a test message")
+        output = json.loads(self.output.getvalue())
+
+        self.assertNotIn("dd.trace_id", output)
+        self.assertNotIn("dd.span_id", output)
