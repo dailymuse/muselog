@@ -16,5 +16,8 @@ setup(
 
     packages=["muselog"],
 
-    install_requires=install_requires
+    install_requires=install_requires,
+    extras_require={
+        "flask": ["Flask>=1.0.2"]
+    }
 )
