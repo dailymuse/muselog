@@ -13,18 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def _derive_network_attrs(response=None):
-    result = {
-        "network.client.ip": request.remote_addr
-        # "network.client.port": ....
-        # There is no (public) interface to get the client's port. Even if one
-        # existed, that port could be a load balancer port, whereas the remote ip
-        # is extracted from X-Forwarded-For. This would be misleading, so we do
-        # not include the client port.
-
-        # "network.destination.ip": ....
-        # The destination ip and port is not useful in this context, so
-        # we do not include it
-    }
+    result = dict()
+    if request.remote_addr:
+        result["network.client.ip"] = request.remote_addr
 
     # This is iffy, as it's unclear what network layer 'bytes_read' and 'bytes_written' refers to
     # Still, the info is too useful to ignore, and the error is small.
@@ -76,7 +67,7 @@ def _log_request(response=None):
         response_status,
         request.method,
         request.full_path,
-        request.remote_addr,
+        request.remote_addr or "?",
         request_time,
         extra=extra
     )
