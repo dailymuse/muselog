@@ -23,10 +23,10 @@ def setup_logging(root_log_level: Optional[str] = None,
     :param module_log_levels: A mapping of module names to their desired log levels.
     :param add_console_handler: If `True`, enable logging to stdout. (Default: `True`).
                                 Python's root_logger by default adds a StreamHandler
-                                if none is specified at app initialization, if this 
+                                if none is specified at app initialization, if this
                                 is present we want it tracked and taken out later,
-                                not to be sent to datadog (remove double entry as 
-                                it doesn't have the JSON formatter for easy interpretation on 
+                                not to be sent to datadog (remove double entry as
+                                it doesn't have the JSON formatter for easy interpretation on
                                 Datadog)
     :param console_handler_format: Specifies the format of stdout logs. (Default: `DEFAULT_LOG_FORMAT`).
     """
@@ -52,9 +52,9 @@ def setup_logging(root_log_level: Optional[str] = None,
         if default_stdout_handler is not None:
             root_logger.removeHandler(default_stdout_handler)
 
-        # log to docker for datadog if enabled. 
-        if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"] == "True":
-            formatter = DatadogJSONFormatter(trace_enabled=os.getenv("DATADOG_TRACE_ENABLED"))
+        # log to docker for datadog if enabled.
+        if "ENABLE_DATADOG_JSON_FORMATTER" in os.environ and os.environ["ENABLE_DATADOG_JSON_FORMATTER"].lower() == "true":
+            formatter = DatadogJSONFormatter(trace_enabled=os.environ.get("DATADOG_TRACE_ENABLED", "false").lower() == "true")
             console_handler.setFormatter(formatter)
 
     # Add GELF handler if GELF is enabled

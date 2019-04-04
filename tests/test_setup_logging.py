@@ -61,7 +61,8 @@ class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
 
     def setUp(self):
         self.logger = Mock()
-        self.response = Mock
+        self.response = Mock()
+        self.response.tell.return_value = 0
         self.request = self.get_mock_request()
 
         def get_response():
@@ -77,6 +78,7 @@ class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
             "HTTP_X_FORWARDED_FOR": "ip1, ip2",
             "REMOTE_ADDR": "ip3"
         }
+        request.headers = request.META
         return request
 
     def test_process_request(self):
@@ -84,8 +86,8 @@ class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
         self.assertIsInstance(self.request.started_at, float)
 
     def test_process_response(self):
-        self.logger.debug = Mock()
+        self.logger.info = Mock()
         self.response.status_code = 200
         self.request.started_at = 0
         self.middleware.process_response(self.request, self.response)
-        self.logger.debug.assert_called_once()
+        self.logger.info.assert_called_once()
