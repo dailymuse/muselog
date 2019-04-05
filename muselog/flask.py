@@ -7,8 +7,6 @@ import time
 from flask import g, request
 from flask.ctx import has_request_context
 
-from werkzeug.wrappers import Request, Response
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,6 +42,10 @@ def _derive_http_attrs(response=None):
     return result
 
 
+def _start_request_timer():
+    g.start = time.time()
+
+
 def _log_request(response=None):
     response_status = response.status_code if response else 500
 
@@ -63,7 +65,8 @@ def _log_request(response=None):
         **_derive_http_attrs(response)
     }
 
-    log_method("%d %s %s (%s) %.2fms",
+    log_method(
+        "%d %s %s (%s) %.2fms",
         response_status,
         request.method,
         request.full_path,
@@ -71,6 +74,7 @@ def _log_request(response=None):
         request_time,
         extra=extra
     )
+
 
 def _handle_exception(_exception):
     # Flask's documentation is confusing, and this presents a good example of why stackoverflow
@@ -106,5 +110,6 @@ def register_muselog_request_hooks(app):
     ...
     ```
     """
+    app.before_request(_start_request_timer)
     app.after_request(_log_request)
     app.teardown_request(_handle_exception)
