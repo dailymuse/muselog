@@ -2,7 +2,7 @@ version: "2.1"
 services:
   test:
     image: python:3.6
-    command: bash -c "pip install -r test-requirements.txt && python -m unittest tests.test_setup_logging tests.test_datadog_formatter"
+    command: bash -c "pip install -r test-requirements.txt && python -m unittest"
     working_dir: /muselog
     volumes:
       - .:/muselog

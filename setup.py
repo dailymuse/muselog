@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 
 install_requires = [
     "pygelf>=0.4.1",
@@ -16,5 +16,8 @@ setup(
 
     packages=["muselog"],
 
-    install_requires=install_requires
+    install_requires=install_requires,
+    extras_require={
+        "flask": ["Flask>=1.0.2"]
+    }
 )

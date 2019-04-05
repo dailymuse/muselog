@@ -3,10 +3,34 @@ import json
 import logging
 import time
 import unittest
+from unittest.mock import MagicMock
 
 from freezegun import freeze_time
 
-from muselog import DatadogJSONFormatter
+from muselog.datadog import DataDogUdpHandler, DatadogJSONFormatter
+
+
+class DataDogTestLoggingTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = DataDogUdpHandler(host="127.0.0.1", port=10518)
+        self.logger = logging.getLogger('datadog')
+
+    def tearDown(self):
+        self.logger.removeHandler(self.handler)
+        self.handler.close()
+
+    def test_datadog_handler_called(self):
+         with self.assertLogs('datadog') as cm:
+            self.handler.send = MagicMock(name='send')
+
+            self.logger.addHandler(self.handler)
+            self.logger.warning("Datadog msg")
+
+            self.assertEqual(True, self.logger.hasHandlers())
+
+            self.assertEqual(True, self.handler.send.called)
+            self.assertEqual(cm.output, ['WARNING:datadog:Datadog msg'])
 
 
 class InjectTraceValuesTestCase(unittest.TestCase):

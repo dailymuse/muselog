@@ -1,6 +1,7 @@
 """Helpers to log tornado request information."""
 
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +72,10 @@ def log_request(handler):
         log_method = logger.info
     elif response_status < 500:
         log_method = logger.warning
-    else:
+    elif not sys.exc_info()[0]:
         log_method = logger.error
+    else:
+        log_method = logger.exception
 
     request_time = 1000.0 * request.request_time()
     extra = {

@@ -1,6 +1,7 @@
 """Middleware to log django request information."""
 
 import logging
+import sys
 import time
 
 logger = logging.getLogger(__name__)
@@ -31,8 +32,10 @@ class MuseDjangoRequestLoggingMiddleware:
             log_method = self.logger.info
         elif response_status < 500:
             log_method = self.logger.warning
-        else:
+        elif not sys.exc_info()[0]:
             log_method = self.logger.error
+        else:
+            log_method = self.logger.exception
 
         extra = {
             "duration": int(request_time * 1000000),
