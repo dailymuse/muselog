@@ -21,7 +21,7 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
         self.handler.close()
 
     def test_datadog_handler_called(self):
-         with self.assertLogs('datadog') as cm:
+        with self.assertLogs('datadog') as cm:
             self.handler.send = MagicMock(name='send')
 
             self.logger.addHandler(self.handler)

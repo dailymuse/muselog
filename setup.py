@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "1.8.2"
+VERSION = "1.8.3"
 
 install_requires = [
     "pygelf>=0.4.1",
@@ -18,6 +18,8 @@ setup(
 
     install_requires=install_requires,
     extras_require={
-        "flask": ["Flask>=1.0.2"]
+        "django": ["Django>=2.1.2"],
+        "flask": ["Flask>=1.0.2"],
+        "tornado": ["tornado>=4.5.1"]
     }
 )

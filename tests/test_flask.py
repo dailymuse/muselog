@@ -1,14 +1,12 @@
 import io
-import json
 import logging
 import time
 import unittest
-from unittest.mock import Mock
 
 from freezegun import freeze_time
 
 import flask
-from flask import g, request
+from flask import g
 from flask.wrappers import Response
 
 from muselog.flask import register_muselog_request_hooks
@@ -18,7 +16,7 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.output = io.StringIO()
-        self.logger = logging.getLogger("muselog.flask")
+        self.logger = logging.getLogger("muselog.util")
         self.logger.setLevel(logging.INFO)
 
         self.app = flask.Flask(__name__)
@@ -37,7 +35,7 @@ class TestCase(unittest.TestCase):
             resp = Response("Okay", status=200, headers=[("Content-Length", "4")])
 
             with freeze_time("2019-04-03 20:00:02"):
-                with self.assertLogs("muselog.flask") as cm:
+                with self.assertLogs("muselog.util") as cm:
                     self.app.process_response(resp)
 
                     # Should output a single log record
@@ -58,7 +56,7 @@ class TestCase(unittest.TestCase):
                 g.start = time.time()
 
             with freeze_time("2019-04-03 20:00:02"):
-                with self.assertLogs("muselog.flask") as cm:
+                with self.assertLogs("muselog.util") as cm:
                     try:
                         raise Exception("WHO CARES")
                     except Exception as e:
