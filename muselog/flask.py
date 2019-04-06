@@ -75,6 +75,8 @@ def _log_request(response=None):
         extra=extra
     )
 
+    return response
+
 
 def _handle_exception(_exception):
     # Flask's documentation is confusing, and this presents a good example of why stackoverflow
