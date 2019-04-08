@@ -1,94 +1,43 @@
 """Helpers to log tornado request information."""
 
-import logging
-import sys
+from typing import Optional, Union
 
-logger = logging.getLogger(__name__)
+from tornado.web import RequestHandler
 
-
-def _derive_network_attrs(handler, request):
-    result = {
-        "network.client.ip": request.remote_ip,
-        # "network.client.port": ....
-        # There is no (public) interface to get the client's port. Even if one
-        # existed, that port could be a load balancer port, whereas the remote ip
-        # is extracted from X-Forwarded-For. This would be misleading, so we do
-        # not include the client port.
-
-        # "network.destination.ip": ....
-        # The destination ip and port is not useful in this context, so
-        # we do not include it
-    }
-
-    # This is iffy, as it's unclear what network layer 'bytes_read' and 'bytes_written' refers to
-    # Still, the info is too useful to ignore, and the error is small.
-    result["network.bytes_read"] = int(request.headers.get("Content-Length") or 0)
-
-    # Tornado does not save the response object, and muselog is not in the business
-    # of providing middleware at the moment. Will need to re-architect the tornado
-    # setup to work as middleware.
-    # result["network.bytes_written"] = ?
-
-    return result
+from . import attributes, util
 
 
-def _derive_http_attrs(handler, request):
-    headers = request.headers
-    result = {
-        "http.url": request.full_url(),
-        "http.method": request.method,
-        "http.status_code": handler.get_status(),
-    }
-    request_id = headers.get("X-Request-Id") or headers.get("X-Amzn-Trace-Id")
-    if request_id:
-        result["http.request_id"] = request_id
-    if "Referer" in headers:
-        result["http.referer"] = headers["Referer"]
-    if "User-Agent" in headers:
-        result["http.useragent"] = headers["User-Agent"]
-
-    return result
-
-
-def _derive_usr_attrs(handler):
-    result = dict()
+def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
+    user_id = None
     user = handler.current_user
     if user:
         if hasattr(user, "id"):
-            result["usr.id"] = str(user.id)
+            user_id = user.id
         elif isinstance(user, dict) and "id" in user:
-            result["usr.id"] = str(user["id"])
+            user_id = user["id"]
         elif isinstance(user, str) or isinstance(user, int):
-            result["usr.id"] = str(user)
-    return result
+            user_id = user
+    return user_id
 
 
-def log_request(handler):
+def log_request(handler: RequestHandler) -> None:
     """Log the request information with extra context."""
     request = handler.request
-    response_status = handler.get_status()
-
-    if response_status < 400:
-        log_method = logger.info
-    elif response_status < 500:
-        log_method = logger.warning
-    elif not sys.exc_info()[0]:
-        log_method = logger.error
-    else:
-        log_method = logger.exception
-
-    request_time = 1000.0 * request.request_time()
-    extra = {
-        "duration": int(request_time * 1000000),
-        **_derive_network_attrs(handler, request),
-        **_derive_http_attrs(handler, request),
-        **_derive_usr_attrs(handler)
-    }
-
-    log_method(
-        "%d %s %.2fms",
-        response_status,
-        handler._request_summary(),
-        request_time,
-        extra=extra
+    network_attrs = attributes.NetworkAttributes(
+        extract_header=request.headers.get,
+        remote_addr=request.remote_ip,
+        bytes_read=request.headers.get("Content-Length")
+    )
+    http_attrs = attributes.HttpAttributes(
+        extract_header=request.headers.get,
+        url=request.full_url(),
+        method=request.method,
+        status_code=handler.get_status()
+    )
+    util.log_request(
+        request.uri,
+        request.request_time(),
+        network_attrs,
+        http_attrs,
+        user_id=_get_user_id(handler)
     )

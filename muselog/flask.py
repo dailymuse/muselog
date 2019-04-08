@@ -1,84 +1,36 @@
 """Middleware that flask applications use to enable datadog-compatible request logging."""
 
-import logging
-import sys
 import time
+from typing import Optional
 
-from flask import g, request
+from flask import g, request, Flask
 from flask.ctx import has_request_context
+from flask.wrappers import Response
 
-logger = logging.getLogger(__name__)
-
-
-def _derive_network_attrs(response=None):
-    result = dict()
-    if request.remote_addr:
-        result["network.client.ip"] = request.remote_addr
-
-    # This is iffy, as it's unclear what network layer 'bytes_read' and 'bytes_written' refers to
-    # Still, the info is too useful to ignore, and the error is small.
-    result["network.bytes_read"] = int(request.content_length or 0)
-    if response:
-        result["network.bytes_written"] = response.calculate_content_length() or 0
-
-    return result
+from . import attributes, util
 
 
-def _derive_http_attrs(response=None):
-    headers = request.headers
-    result = {
-        "http.url": request.url,
-        "http.method": request.method,
-        "http.status_code": response.status_code if response else 500,
-    }
-    request_id = headers.get("X-Request-Id") or headers.get("X-Amzn-Trace-Id")
-    if request_id:
-        result["http.request_id"] = request_id
-    if request.referrer:
-        result["http.referer"] = request.referrer
-    if request.user_agent:
-        result["http.useragent"] = request.user_agent
-
-    return result
-
-
-def _start_request_timer():
+def _start_request_timer() -> None:
     g.start = time.time()
 
 
-def _log_request(response=None):
-    response_status = response.status_code if response else 500
-
-    if response_status < 400:
-        log_method = logger.info
-    elif response_status < 500:
-        log_method = logger.warning
-    elif not sys.exc_info()[0]:
-        log_method = logger.error
-    else:
-        log_method = logger.exception
-
-    request_time = 1000.0 * (time.time() - g.start)
-    extra = {
-        "duration": int(request_time * 1000000),
-        **_derive_network_attrs(response),
-        **_derive_http_attrs(response)
-    }
-
-    log_method(
-        "%d %s %s (%s) %.2fms",
-        response_status,
-        request.method,
-        request.full_path,
-        request.remote_addr or "?",
-        request_time,
-        extra=extra
+def _log_request(response: Optional[Response] = None) -> None:
+    network_attrs = attributes.NetworkAttributes(
+        extract_header=request.headers.get,
+        remote_addr=request.remote_addr,
+        bytes_read=request.content_length,
+        bytes_written=response.calculate_content_length() if response else None
     )
+    http_attrs = attributes.HttpAttributes(
+        extract_header=request.headers.get,
+        url=request.url,
+        method=request.method,
+        status_code=response.status_code if response else 500
+    )
+    util.log_request(request.full_path, time.time() - g.start, network_attrs, http_attrs)
 
-    return response
 
-
-def _handle_exception(_exception):
+def _handle_exception(_exception: Exception) -> None:
     # Flask's documentation is confusing, and this presents a good example of why stackoverflow
     # should *not* be trusted. Users on stackoverflow claim that request context is not available
     # during teardown_request, but this is not true. teardown_request is called immediately before
@@ -102,7 +54,7 @@ def _handle_exception(_exception):
     _log_request()
 
 
-def register_muselog_request_hooks(app):
+def register_muselog_request_hooks(app: Flask) -> None:
     """Hookup muselog to flask's request lifecycle.
 
     Call immediately after instantiating the Flask application object. For example,
