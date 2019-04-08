@@ -5,7 +5,7 @@ from typing import Any, Callable, Mapping, Optional, Union
 
 from django.http import HttpRequest, HttpResponse
 
-from . import util
+from . import attributes, util
 
 
 def _extract_header(meta: Mapping[str, Any]) -> Callable[[str], Any]:
@@ -59,13 +59,13 @@ class MuseDjangoRequestLoggingMiddleware:
         """Extract and log timing, network, http, and user attributes."""
         meta = request.META
         extract_header = _extract_header(meta)
-        network_attrs = util.NetworkAttributes(
+        network_attrs = attributes.NetworkAttributes(
             extract_header=extract_header,
             remote_addr=meta.get("REMOTE_ADDR"),
             bytes_read=meta.get("CONTENT_LENGTH"),
             bytes_written=response.tell()
         )
-        http_attrs = util.HttpAttributes(
+        http_attrs = attributes.HttpAttributes(
             extract_header=extract_header,
             url=request.get_raw_uri(),
             method=request.method,

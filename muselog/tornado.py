@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from tornado.web import RequestHandler
 
-from . import util
+from . import attributes, util
 
 
 def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
@@ -23,12 +23,12 @@ def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
 def log_request(handler: RequestHandler) -> None:
     """Log the request information with extra context."""
     request = handler.request
-    network_attrs = util.NetworkAttributes(
+    network_attrs = attributes.NetworkAttributes(
         extract_header=request.headers.get,
         remote_addr=request.remote_ip,
         bytes_read=request.headers.get("Content-Length")
     )
-    http_attrs = util.HttpAttributes(
+    http_attrs = attributes.HttpAttributes(
         extract_header=request.headers.get,
         url=request.full_url(),
         method=request.method,

@@ -7,7 +7,7 @@ from flask import g, request, Flask
 from flask.ctx import has_request_context
 from flask.wrappers import Response
 
-from . import util
+from . import attributes, util
 
 
 def _start_request_timer() -> None:
@@ -15,13 +15,13 @@ def _start_request_timer() -> None:
 
 
 def _log_request(response: Optional[Response] = None) -> None:
-    network_attrs = util.NetworkAttributes(
+    network_attrs = attributes.NetworkAttributes(
         extract_header=request.headers.get,
         remote_addr=request.remote_addr,
         bytes_read=request.content_length,
         bytes_written=response.calculate_content_length() if response else None
     )
-    http_attrs = util.HttpAttributes(
+    http_attrs = attributes.HttpAttributes(
         extract_header=request.headers.get,
         url=request.url,
         method=request.method,
