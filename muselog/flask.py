@@ -29,6 +29,8 @@ def _log_request(response: Optional[Response] = None) -> None:
     )
     util.log_request(request.full_path, time.time() - g.start, network_attrs, http_attrs)
 
+    return response
+
 
 def _handle_exception(_exception: Exception) -> None:
     # Flask's documentation is confusing, and this presents a good example of why stackoverflow
