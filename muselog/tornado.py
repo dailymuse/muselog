@@ -1,6 +1,7 @@
 """Helpers to log tornado request information."""
 
 import logging
+import sys
 from typing import Optional, Type, Union
 from types import TracebackType
 
@@ -99,7 +100,6 @@ class ExceptionLogger:
         unless you purposefully want to silence the exception.
 
         """
-        self.dd_log_exception(typ, value, tb)
         network_attrs = _make_network_attributes(self)
         http_attrs = _make_http_attributes(self)
         user_id = _get_user_id(self)
@@ -111,11 +111,18 @@ class ExceptionLogger:
         if user_id:
             extra["usr.id"] = user_id
 
-        if isinstance(value, HTTPError) and value.status_code < 500:
-            # Log at warning level for 4xx errors that are uncaught.
-            log_method = logger.warning
-        else:
+        try:
+            self.dd_log_exception(typ, value, tb)
+        except Exception:
             log_method = logger.error
+            exc_info = sys.exc_info()
+        else:
+            exc_info = sys.exc_info()
+            if isinstance(value, HTTPError) and value.status_code < 500:
+                # Log at warning level for 4xx errors that are uncaught.
+                log_method = logger.warning
+            else:
+                log_method = logger.error
 
         log_method(
             "%s %s (%s) encountered uncaught exception %s: " + str(value),
@@ -124,5 +131,5 @@ class ExceptionLogger:
             network_attrs.client_ip or "?",
             typ.__name__,
             extra=extra,
-            exc_info=True
+            exc_info=exc_info
         )
