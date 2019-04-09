@@ -1,10 +1,14 @@
 """Helpers to log tornado request information."""
 
-from typing import Optional, Union
+import logging
+from typing import Optional, Type, Union
+from types import TracebackType
 
-from tornado.web import RequestHandler
+from tornado.web import HTTPError, RequestHandler
 
 from . import attributes, util
+
+logger = logging.getLogger(__name__)
 
 
 def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
@@ -20,20 +24,30 @@ def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
     return user_id
 
 
-def log_request(handler: RequestHandler) -> None:
-    """Log the request information with extra context."""
+def _make_network_attributes(handler: RequestHandler) -> attributes.NetworkAttributes:
     request = handler.request
-    network_attrs = attributes.NetworkAttributes(
+    return attributes.NetworkAttributes(
         extract_header=request.headers.get,
         remote_addr=request.remote_ip,
         bytes_read=request.headers.get("Content-Length")
     )
-    http_attrs = attributes.HttpAttributes(
+
+
+def _make_http_attributes(handler: RequestHandler) -> attributes.NetworkAttributes:
+    request = handler.request
+    return attributes.HttpAttributes(
         extract_header=request.headers.get,
         url=request.full_url(),
         method=request.method,
         status_code=handler.get_status()
     )
+
+
+def log_request(handler: RequestHandler) -> None:
+    """Log the request information with extra context."""
+    request = handler.request
+    network_attrs = _make_network_attributes(handler)
+    http_attrs = _make_http_attributes(handler)
     util.log_request(
         request.uri,
         request.request_time(),
@@ -41,3 +55,51 @@ def log_request(handler: RequestHandler) -> None:
         http_attrs,
         user_id=_get_user_id(handler)
     )
+
+
+class ExceptionLogger:
+    """Middleware (as best as tornado supports that...) to log request-scoped exception information.
+
+    Expected to be used in the context of a :class:`RequestHandler`.
+    """
+
+    def log_exception(
+        self,
+        typ: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
+        """Log request exception information in a standardized format.
+
+        Extend this method with your own logic to ensure you do not log
+        the stack for custom exceptions you consider 4xx level. In this case,
+        please call `super().log_exception(...)` after executing your logic,
+        unless you purposefully want to silence the exception.
+
+        """
+        network_attrs = _make_network_attributes(self)
+        http_attrs = _make_http_attributes(self)
+        user_id = _get_user_id(self)
+
+        extra = {
+            **network_attrs.standardize(),
+            **http_attrs.standardize()
+        }
+        if user_id:
+            extra["usr.id"] = user_id
+
+        if isinstance(value, HTTPError) and value.status_code < 500:
+            # Log at warning level for 4xx errors that are uncaught.
+            log_method = logger.warning
+        else:
+            log_method = logger.error
+
+        log_method(
+            "%s %s (%s) encountered uncaught exception %s: " + str(value),
+            http_attrs.method,
+            self.request.uri,
+            network_attrs.client_ip or "?",
+            typ.__name__,
+            extra=extra,
+            exc_info=True
+        )
