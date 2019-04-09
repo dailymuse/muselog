@@ -4,6 +4,8 @@ import logging
 from typing import Optional, Type, Union
 from types import TracebackType
 
+from ddtrace import tracer
+
 from tornado.web import HTTPError, RequestHandler
 
 from . import attributes, util
@@ -63,6 +65,26 @@ class ExceptionLogger:
     Expected to be used in the context of a :class:`RequestHandler`.
     """
 
+    def dd_log_exception(self, typ: type, value: BaseException, tb: TracebackType) -> None:
+        """Re-implements Datadog's log_exception wrapper.
+
+        This is necessary because ExceptionLogger does /not/ call super().log_exception,
+        and thus will not invoke Datadog's log_exception wrapper.
+        """
+        # retrieve the current span
+        current_span = tracer.current_span()
+
+        if isinstance(value, HTTPError):
+            # Tornado uses HTTPError exceptions to stop and return a status code that
+            # is not a 2xx. In this case we want to check the status code to be sure that
+            # only 5xx are traced as errors, while any other HTTPError exception is handled as
+            # usual.
+            if 500 <= value.status_code <= 599:
+                current_span.set_exc_info(typ, value, tb)
+        else:
+            # any other uncaught exception should be reported as error
+            current_span.set_exc_info(typ, value, tb)
+
     def log_exception(
         self,
         typ: Optional[Type[BaseException]],
@@ -77,6 +99,7 @@ class ExceptionLogger:
         unless you purposefully want to silence the exception.
 
         """
+        self.dd_log_exception(typ, value, tb)
         network_attrs = _make_network_attributes(self)
         http_attrs = _make_http_attributes(self)
         user_id = _get_user_id(self)
