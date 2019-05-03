@@ -92,7 +92,7 @@ class MuseDjangoRequestLoggingMiddleware:
     @staticmethod
     def _get_bytes_written(response: HttpResponse) -> int:
         """
-        Attemps to get the bytes written, accounting for `StreamingHttpResponse`
+        Attempts to get the bytes written, accounting for `StreamingHttpResponse`
         which will not be able to tell it's position.
         """
         try:
