@@ -63,7 +63,7 @@ class MuseDjangoRequestLoggingMiddleware:
             extract_header=extract_header,
             remote_addr=meta.get("REMOTE_ADDR"),
             bytes_read=meta.get("CONTENT_LENGTH"),
-            bytes_written=self._get_bytes_written()
+            bytes_written=self._get_bytes_written(response)
         )
         http_attrs = attributes.HttpAttributes(
             extract_header=extract_header,
