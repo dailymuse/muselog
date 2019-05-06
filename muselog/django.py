@@ -63,7 +63,7 @@ class MuseDjangoRequestLoggingMiddleware:
             extract_header=extract_header,
             remote_addr=meta.get("REMOTE_ADDR"),
             bytes_read=meta.get("CONTENT_LENGTH"),
-            bytes_written=response.tell()
+            bytes_written=self._get_bytes_written(response)
         )
         http_attrs = attributes.HttpAttributes(
             extract_header=extract_header,
@@ -88,3 +88,14 @@ class MuseDjangoRequestLoggingMiddleware:
             return user.id
         else:
             return None
+
+    @staticmethod
+    def _get_bytes_written(response: HttpResponse) -> int:
+        """
+        Attempts to get the bytes written, accounting for `StreamingHttpResponse`
+        which will not be able to tell it's position.
+        """
+        try:
+            return response.tell()
+        except OSError:
+            return 0
