@@ -1,7 +1,7 @@
 # Muselog #
 
 Muselog standardizes logging across all Python applications in use at The Muse. It provides support
-for Graylog and provides request hooks for Tornado.
+for Datadog and provides request hooks for Tornado.
 
 ## Usage
 
@@ -38,7 +38,3 @@ You can use this hook in your application by pointing Tornado's `log_function` s
 ## Testing
 
 Run `docker-compose up test` to run unit tests.
-
-If you want to test integration with Graylog, run `docker-compose up graylog` followed by
-`docker-compose run --rm -e GRAYLOG_HOST=graylog -e GRAYLOG_APP_NAME=test -e GRAYLOG_ENV=tst test bash -c "pip install -r test-requirements.txt && python"`. When inside the Python interpreter, run `import muselog` and test
-to your heart's content.
