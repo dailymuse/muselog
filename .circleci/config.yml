@@ -16,3 +16,9 @@ jobs:
           command: |
             . venv/bin/activate
             python -m unittest
+      - run:
+          name: Publish Module
+          command: |
+            package_name=muselog
+            package_version=$(grep 'VERSION =' setup.py | awk '{print $3}' | tr -d '"')
+            ci/publish $GEMFURY_PUSH_TOKEN $CIRCLE_BRANCH $package_name $package_version $CIRCLE_BUILD_NUM
