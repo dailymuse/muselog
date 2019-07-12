@@ -3,6 +3,29 @@
 Muselog standardizes logging across all Python applications in use at The Muse. It provides support
 for Datadog and provides request hooks for Tornado.
 
+## Installation
+
+### pip
+`muselog` is avaible on themuse's public gemfury index `https://pypi.fury.io/themuse/` . You'll need to add our index to your `requirements.txt` in order to resolve the module.
+
+```sh
+# requirements.txt
+--extra-index-url https://pypi.fury.io/themuse/
+
+muselog==1.8.4
+```
+
+### git
+
+You can still install `muselog` through git via the tags we publish on github and an egg _(string directory that gets checked out as part of the install)_.
+
+```sh
+# requirements.txt
+
+# example
+-e git+git://github.com/dailymuse/muselog.git@1.8.4#egg=muselog[tornado]
+```
+
 ## Usage
 
 Import `muselog` as early as possible. At The Muse, this is usually in the application's top-level `__init__.py`.
