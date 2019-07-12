@@ -3,6 +3,5 @@ Flask==1.0.2
 Django==2.1.2
 tornado==4.5.1
 
-git+git://github.com/dailymuse/pygelf.git@0.4.1#egg=pygelf
 ddtrace==0.22.0
 JSON-log-formatter==0.1.0
