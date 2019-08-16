@@ -117,6 +117,7 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         record_dict = dict(record.__dict__)
 
         record_dict["message"] = message
+        record_dict["tm.logger.library"] = "muselog"
 
         if "timestamp" not in record_dict:
             # UNIX time in milliseconds

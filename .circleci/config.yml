@@ -16,9 +16,18 @@ jobs:
           command: |
             . venv/bin/activate
             python -m unittest
-      - run:
-          name: Publish Module
+      - deploy:
+          name: Publish Module to Gemfury
           command: |
             package_name=muselog
             package_version=$(grep 'VERSION =' setup.py | awk '{print $3}' | tr -d '"')
-            ci/publish $GEMFURY_PUSH_TOKEN $CIRCLE_BRANCH $package_name $package_version $CIRCLE_BUILD_NUM
+            ci/publish_gemfury $GEMFURY_PUSH_TOKEN $CIRCLE_BRANCH $package_name $package_version $CIRCLE_BUILD_NUM
+      - deploy:
+          name: Publish Module to AWS Lambda
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "master" ]]; then
+              package_version=$(grep 'VERSION =' setup.py | awk '{print $3}' | tr -d '"')
+              ci/publish_lambda $package_version
+            else
+              echo "Not deploying dev package as a lambda layer."
+            fi
