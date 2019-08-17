@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+package_version="$1"
+
+mkdir python
+pip3 install . -t python
+
+version_parts=(${package_version//./ })
+major_version="${version_parts[0]}"
+zipfile="muselog-v${major_version}.python3.zip"
+
+zip -r $zipfile python
+
+bucket=$TM_LAMBDA_LAYERS_BUCKET
+key=muselog/$zipfile
+
+pip3 install awscli
+aws s3 cp $zipfile s3://$bucket/$key
+aws lambda publish-layer-version \
+  --layer-name "muselog-v${major_version}-python3" \
+  --description "Muse logging library for Python" \
+  --compatible-runtimes python3.6 python3.7 \
+  --content S3Bucket=$bucket,S3Key=$key
