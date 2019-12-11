@@ -119,20 +119,15 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
         record_dict["message"] = message
         record_dict["tm.logger.library"] = "muselog"
 
-        if "timestamp" not in record_dict:
-            # UNIX time in milliseconds
-            record_dict["timestamp"] = int(record.created * 1000)
+        additional = {
+            "timestamp": int(record.created * 1000),
+            "severity": record.levelname,
+            "logger.name": record.name,
+            "logger.method_name": record.funcName,
+            "logger.thread_name": record.threadName,
+        }
 
-        if "severity" not in record_dict:
-            record_dict["severity"] = record.levelname
-
-        # Source Code
-        if "logger.name" not in record_dict:
-            record_dict["logger.name"] = record.name
-        if "logger.method_name" not in record_dict:
-            record_dict["logger.method_name"] = record.funcName
-        if "logger.thread_name" not in record_dict:
-            record_dict["logger.thread_name"] = record.threadName
+        record_dict = {**additional, **record_dict}
 
         # NOTE: We do not inject 'host', 'source', or 'service', as we want
         # Datadog agent and docker labels to handle that for the time being.
