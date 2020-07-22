@@ -2,8 +2,10 @@ import unittest
 
 from muselog import attributes
 
+from .support import ClearContext
 
-class NetworkAttributesTestCase(unittest.TestCase):
+
+class NetworkAttributesTestCase(ClearContext, unittest.TestCase):
 
     def test_standardize_forward_header_priority(self):
         headers = {
@@ -75,7 +77,7 @@ class NetworkAttributesTestCase(unittest.TestCase):
         self.assertEqual(result["network.client.port"], "443")
 
 
-class HttpAttributesTestCase(unittest.TestCase):
+class HttpAttributesTestCase(ClearContext, unittest.TestCase):
 
     def test_standardize_without_extra_headers(self):
         http_attrs = attributes.HttpAttributes(

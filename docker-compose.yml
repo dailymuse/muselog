@@ -1,7 +1,7 @@
-version: "2.1"
+version: "2.4"
 services:
   test:
-    image: python:3.6
+    image: python:3.7
     command: bash -c "pip install -r test-requirements.txt && python -m unittest"
     working_dir: /muselog
     volumes:

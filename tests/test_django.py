@@ -6,10 +6,13 @@ from freezegun import freeze_time
 
 from muselog.django import MuseDjangoRequestLoggingMiddleware
 
+from .support import ClearContext
 
-class MuseDjangoRequestLoggingMiddlewareTestCase(unittest.TestCase):
+
+class MuseDjangoRequestLoggingMiddlewareTestCase(ClearContext, unittest.TestCase):
 
     def setUp(self):
+        super().setUp()
         self.response = Mock()
         self.response.tell.return_value = 4
         self.request = self.get_mock_request()

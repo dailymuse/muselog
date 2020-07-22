@@ -2,12 +2,21 @@
 
 import logging
 import sys
+from typing import Any, Callable, Optional, Union
+import uuid
 
-from typing import Optional, Union
-
+from . import context, logger
 from .attributes import NetworkAttributes, HttpAttributes
 
-logger = logging.getLogger(__name__)
+LOGGER: logging.Logger = logger.get_logger_with_context(logging.getLogger(__name__))
+
+
+def init_context(extract_header: Callable[[str], Any]) -> None:
+    """Set logging context that will survive the entire request."""
+    rid = extract_header("Request-Id") or extract_header("X-Request-Id") or extract_header("X-Amzn-Trace-Id")
+    if rid is None:
+        rid = str(uuid.uuid4())
+    context.bind(request_id=rid)
 
 
 def log_request(path: str,
@@ -17,6 +26,7 @@ def log_request(path: str,
                 user_id: Optional[Union[str, int]] = None):
     """Log the provided request information in a standardized format.
 
+    :param path:            Request path.
     :param duration_secs:   Seconds spent processing the request.
     :param network_attrs:   See :class:`NetworkAttributes`
     :param http_attrs:      See :class:`HttpAttributes`
@@ -24,13 +34,13 @@ def log_request(path: str,
     """
     status_code = http_attrs.status_code
     if status_code < 400:
-        log_method = logger.info
+        log_method = LOGGER.info
     elif status_code < 500:
-        log_method = logger.warning
+        log_method = LOGGER.warning
     elif not sys.exc_info()[0]:
-        log_method = logger.error
+        log_method = LOGGER.error
     else:
-        log_method = logger.exception
+        log_method = LOGGER.exception
 
     duration_ms = duration_secs * 1000
     extra = {

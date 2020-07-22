@@ -2,9 +2,10 @@
 
 from abc import ABC, abstractmethod
 from ipaddress import ip_address
+from typing import Any, Callable, Dict, Optional, Tuple
 from urllib.parse import urlparse
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from . import context
 
 
 class Attributes(ABC):
@@ -57,9 +58,13 @@ class NetworkAttributes(Attributes):
                 ip = str(ip_address(ip))
                 port = None
             except ValueError:
-                parsed = urlparse(f"//{ip}")
-                ip = str(ip_address(parsed.hostname))
-                port = str(parsed.port)
+                try:
+                    parsed = urlparse(f"//{ip}")
+                    ip = str(ip_address(parsed.hostname))
+                    port = str(parsed.port)
+                except ValueError:
+                    # Who knows what IP is.... give up.
+                    ip, port = None, None
 
         return ip, port
 
@@ -89,7 +94,8 @@ class HttpAttributes(Attributes):
                  extract_header: Callable[[str], Any],
                  url: str,
                  method: str,
-                 status_code: int) -> None:
+                 status_code: int,
+                 ) -> None:
         """Populate http attributes.
 
         :param extract_header:  Framework-agnostic callable that returns the value
@@ -103,7 +109,7 @@ class HttpAttributes(Attributes):
         self.url = url
         self.method = method
         self.status_code = status_code
-        self.request_id = extract_header("X-Request-Id") or extract_header("X-Amzn-Trace-Id")
+        self.request_id = extract_header("Request-Id") or extract_header("X-Request-Id") or extract_header("X-Amzn-Trace-Id")
         self.referrer = extract_header("Referer")
         self.user_agent = extract_header("User-Agent")
 
@@ -115,8 +121,9 @@ class HttpAttributes(Attributes):
             "http.status_code": self.status_code
         }
 
-        if self.request_id:
-            result["http.request_id"] = self.request_id
+        request_id = context.get("request_id") or self.request_id
+        if request_id:
+            result["http.request_id"] = request_id
 
         if self.referrer:
             result["http.referer"] = self.referrer
