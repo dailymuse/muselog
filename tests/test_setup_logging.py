@@ -3,8 +3,10 @@ import unittest
 
 import muselog
 
+from .support import ClearContext
 
-class SetupLoggingTestCase(unittest.TestCase):
+
+class SetupLoggingTestCase(ClearContext, unittest.TestCase):
 
     def test_defaults(self):
         logging.getLogger().setLevel(logging.INFO)

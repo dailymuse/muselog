@@ -5,7 +5,7 @@ from typing import Any, Callable, Mapping, Optional, Union
 
 from django.http import HttpRequest, HttpResponse
 
-from . import attributes, util
+from . import attributes, context, util
 
 
 def _extract_header(meta: Mapping[str, Any]) -> Callable[[str], Any]:
@@ -54,6 +54,9 @@ class MuseDjangoRequestLoggingMiddleware:
     def process_request(self, request: HttpRequest) -> None:
         """Add timing information to the request to calculate its duration."""
         request.started_at = time.time()
+        meta = request.META
+        extract_header = _extract_header(meta)
+        util.init_context(extract_header)
 
     def process_response(self, request: HttpRequest, response: HttpResponse) -> None:
         """Extract and log timing, network, http, and user attributes."""
@@ -78,6 +81,7 @@ class MuseDjangoRequestLoggingMiddleware:
             http_attrs,
             user_id=self._get_user_id(request)
         )
+        context.unbind("request_id")
 
     @staticmethod
     def _get_user_id(request: HttpRequest) -> Optional[Union[str, int]]:

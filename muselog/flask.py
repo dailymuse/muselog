@@ -10,8 +10,9 @@ from flask.wrappers import Response
 from . import attributes, util
 
 
-def _start_request_timer() -> None:
+def _start_request() -> None:
     g.start = time.time()
+    util.init_context(request.headers.get)
 
 
 def _log_request(response: Optional[Response] = None) -> None:
@@ -66,6 +67,6 @@ def register_muselog_request_hooks(app: Flask) -> None:
     ...
     ```
     """
-    app.before_request(_start_request_timer)
+    app.before_request(_start_request)
     app.after_request(_log_request)
     app.teardown_request(_handle_exception)

@@ -11,10 +11,14 @@ from flask.wrappers import Response
 
 from muselog.flask import register_muselog_request_hooks
 
+from .support import ClearContext
 
-class TestCase(unittest.TestCase):
+
+class FlaskMiddlewareTestCase(ClearContext, unittest.TestCase):
 
     def setUp(self):
+        super().setUp()
+
         self.output = io.StringIO()
         self.logger = logging.getLogger("muselog.util")
         self.logger.setLevel(logging.INFO)
@@ -26,6 +30,7 @@ class TestCase(unittest.TestCase):
     def tearDown(self):
         self.logger.handlers = []
         self.output.close()
+        super().tearDown()
 
     def test_happy(self):
         with self.app.test_request_context("/?someparam=5"):

@@ -1,6 +1,8 @@
 freezegun==0.3.11
 Flask==1.0.2
 Django==2.2.12
+requests==2.24.0
+starlette==0.13.6
 tornado==4.5.1
 
 ddtrace==0.22.0

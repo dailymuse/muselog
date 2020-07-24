@@ -9,16 +9,20 @@ from freezegun import freeze_time
 
 from muselog.datadog import DataDogUdpHandler, DatadogJSONFormatter
 
+from .support import ClearContext
 
-class DataDogTestLoggingTestCase(unittest.TestCase):
+
+class DataDogTestLoggingTestCase(ClearContext, unittest.TestCase):
 
     def setUp(self):
+        super().setUp()
         self.handler = DataDogUdpHandler(host="127.0.0.1", port=10518)
         self.logger = logging.getLogger('datadog')
 
     def tearDown(self):
         self.logger.removeHandler(self.handler)
         self.handler.close()
+        super().tearDown()
 
     def test_datadog_handler_called(self):
         with self.assertLogs('datadog') as cm:
@@ -33,7 +37,7 @@ class DataDogTestLoggingTestCase(unittest.TestCase):
             self.assertEqual(cm.output, ['WARNING:datadog:Datadog msg'])
 
 
-class InjectTraceValuesTestCase(unittest.TestCase):
+class InjectTraceValuesTestCase(ClearContext, unittest.TestCase):
     """Tests code related to injecting logs with a trace and span id."""
 
     def setUp(self):

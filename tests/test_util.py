@@ -2,8 +2,10 @@ import unittest
 
 from muselog import attributes, util
 
+from .support import ClearContext
 
-class LogRequestTestCase(unittest.TestCase):
+
+class UtilTestCase(ClearContext, unittest.TestCase):
 
     def test_log_request(self):
         network_attrs = attributes.NetworkAttributes(

@@ -9,9 +9,9 @@ from ddtrace import tracer
 
 from tornado.web import HTTPError, RequestHandler
 
-from . import attributes, util
+from . import attributes, context, logger, util
 
-logger = logging.getLogger(__name__)
+LOGGER: logging.Logger = logger.get_logger_with_context(logging.getLogger(__name__))
 
 
 def _get_user_id(handler: RequestHandler) -> Optional[Union[str, int]]:
@@ -49,6 +49,7 @@ def _make_http_attributes(handler: RequestHandler) -> attributes.NetworkAttribut
 def log_request(handler: RequestHandler) -> None:
     """Log the request information with extra context."""
     request = handler.request
+    util.init_context(request.headers.get)
     network_attrs = _make_network_attributes(handler)
     http_attrs = _make_http_attributes(handler)
     util.log_request(
@@ -58,6 +59,8 @@ def log_request(handler: RequestHandler) -> None:
         http_attrs,
         user_id=_get_user_id(handler)
     )
+
+    context.unbind("request_id")
 
 
 class ExceptionLogger:
@@ -114,15 +117,15 @@ class ExceptionLogger:
         try:
             self.dd_log_exception(typ, value, tb)
         except Exception:
-            log_method = logger.error
+            log_method = LOGGER.error
             exc_info = sys.exc_info()
         else:
             exc_info = sys.exc_info()
             if isinstance(value, HTTPError) and value.status_code < 500:
                 # Log at warning level for 4xx errors that are uncaught.
-                log_method = logger.warning
+                log_method = LOGGER.warning
             else:
-                log_method = logger.error
+                log_method = LOGGER.error
 
         log_method(
             "%s %s (%s) encountered uncaught exception %s: " + str(value),
@@ -133,3 +136,5 @@ class ExceptionLogger:
             extra=extra,
             exc_info=exc_info
         )
+
+        context.unbind("request_id")
