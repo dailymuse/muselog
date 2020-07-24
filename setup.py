@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
