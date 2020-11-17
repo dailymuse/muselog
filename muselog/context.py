@@ -1,7 +1,8 @@
 """Manipulate logging context."""
 
 from contextvars import ContextVar
-from typing import Any
+from contextlib import contextmanager
+from typing import Any, Iterator
 
 #: Context that we can access anywhere in the thread
 _CONTEXT: ContextVar = ContextVar("muselog", default=dict())
@@ -27,9 +28,9 @@ def clear() -> None:
     ctx.clear()
 
 
-def bind(**kwargs) -> None:
+def bind(**ctx) -> None:
     """Put keys and values into the context-local context."""
-    _CONTEXT.get().update(kwargs)
+    _CONTEXT.get().update(ctx)
 
 
 def unbind(*keys) -> None:
@@ -37,3 +38,13 @@ def unbind(*keys) -> None:
     ctx = _CONTEXT.get()
     for key in keys:
         ctx.pop(key, None)
+
+
+@contextmanager
+def Context(**ctx) -> Iterator:
+    """Bind additional context to muselog global context."""
+    bind(**ctx)
+    try:
+        yield
+    finally:
+        unbind(*list(ctx.keys()))
