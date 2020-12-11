@@ -1,0 +1,5 @@
+prune .circleci
+prune ci
+prune tests
+exclude .gitignore
+exclude test-requirements.txt
