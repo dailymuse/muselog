@@ -1,6 +1,6 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-VERSION = "2.3.0"
+VERSION = "2.3.1"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
@@ -13,8 +13,8 @@ setup(
     version=VERSION,
     description="themuse.com log utilities",
     zip_safe=False,
-
-    packages=["muselog"],
+    packages=find_packages(),
+    include_package_data=True,
     python_requires=">=3.6",
     install_requires=install_requires,
     extras_require={
