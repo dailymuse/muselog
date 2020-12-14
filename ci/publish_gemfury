@@ -8,7 +8,7 @@ package_name="$3"
 package_version="$4"
 circle_build_num="$5"
 
-if [[ $branch == "master" ]]; then
+if [[ $branch == "main" ]]; then
     # create dist using python setup dist
     python3 setup.py sdist
     # push dist to gemfury using curl and token
