@@ -63,6 +63,8 @@ See the method's documentation if any of the configuration options in this examp
 ## Integrations
 ### Datadog
 
+- DATADOG_ERROR_STACK_LIMIT  :: truncate the stack trace sent in `error.stack` to X number of characters, default 10000
+
 #### Send logs to stdout
 - ENABLE_DATADOG_JSON_FORMATTER  :: set to `True` to enable datadog docker logging
 
