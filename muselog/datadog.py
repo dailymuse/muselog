@@ -3,6 +3,7 @@
 import json
 import sys
 from typing import Any, Mapping
+import os
 
 from datetime import timedelta
 from logging import LogRecord
@@ -181,6 +182,7 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
             if "error.message" not in record_dict:
                 record_dict["error.message"] = str(exc_info[1])
             if "error.stack" not in record_dict:
-                record_dict["error.stack"] = self.formatException(exc_info)
+                limit = int(os.environ.get("DATADOG_ERROR_STACK_LIMIT", 10000))
+                record_dict["error.stack"] = self.formatException(exc_info)[0:limit]
 
         return record_dict
