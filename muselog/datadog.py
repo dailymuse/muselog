@@ -10,9 +10,7 @@ from logging import LogRecord
 from logging.handlers import DatagramHandler
 
 import json_log_formatter
-
-from ddtrace import helpers
-
+from ddtrace import Tracer
 
 class DataDogUdpHandler(DatagramHandler):
     """A handler class which writes logging records, in pickle format, to a datagram socket.
@@ -87,13 +85,14 @@ class ObjectEncoder(json.JSONEncoder):
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
     """JSON log formatter that includes Datadog standard attributes."""
-
+    
     def __init__(self, trace_enabled: bool = False):
         """Create the formatter.
 
         :param trace_enabled: Set to true to include trace information in the log.
         """
         self.trace_enabled = trace_enabled
+        self.enabled = trace_enabled
 
     def format(self, record: LogRecord):
         """Return the record in the format usable by Datadog."""
@@ -141,11 +140,11 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
         exc_info = record.exc_info
         try:
-            if self.trace_enabled:
+            if self.trace_enabled:                
                 # get correlation ids from current tracer context
-                trace_id, span_id = helpers.get_correlation_ids()
-                record_dict["dd.trace_id"] = trace_id or 0
-                record_dict["dd.span_id"] = span_id or 0
+                context = Tracer.get_log_correlation_context(self)
+                record_dict["dd.trace_id"] = int(context['trace_id']) or 0
+                record_dict["dd.span_id"] = int(context['span_id']) or 0
 
             if "context" in record_dict:
                 context_obj = dict()
