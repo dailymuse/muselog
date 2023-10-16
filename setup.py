@@ -4,7 +4,7 @@ VERSION = "2.5.0"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
-    "ddtrace>=1.3.2",  # Let's leap ahead 
+    "ddtrace>=2.1.1",  # Let's leap ahead 
     "typer>=0.3.0"
 ]
 
