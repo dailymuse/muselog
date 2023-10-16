@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
@@ -15,7 +15,7 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.6",
+    python_requires=">=3.12",
     install_requires=install_requires,
     extras_require={
         "django": ["Django>=2.2.12"],
