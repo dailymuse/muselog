@@ -19,5 +19,5 @@ else
     # create dist using python setup dist
     python3 setup.py sdist
     # push dist to gemfury using curl and token
-    curl -F package=@dist/$package_name-$package_version-build-$circle_build_num.tar.gz https://$gemfury_push_token@push.fury.io/themuse
+    curl -F package=@dist/$package_name-$package_version+build-$circle_build_num.tar.gz https://$gemfury_push_token@push.fury.io/themuse
 fi
