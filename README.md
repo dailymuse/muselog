@@ -10,13 +10,13 @@ It integrates with [DataDog](https://www.datadoghq.com/), and it provides reques
 ## Installation
 
 ### pip
-`muselog` is avaible on themuse's public gemfury index `https://pypi.fury.io/themuse/` . You'll need to add our index to your `requirements.txt` in order to resolve the module.
+`muselog` is available on themuse's public gemfury index `https://pypi.fury.io/themuse/` . You'll need to add our index to your `requirements.txt` in order to resolve the module.
 
 ```sh
 # requirements.txt
 --extra-index-url https://pypi.fury.io/themuse/
 
-muselog==1.8.4
+muselog==2.5.0
 ```
 
 ### git
