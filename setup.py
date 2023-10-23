@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
@@ -18,9 +18,9 @@ setup(
     python_requires=">=3.11",
     install_requires=install_requires,
     extras_require={
-        "django": ["Django>=2.2.28"],
+        "django": ["Django>=2.2.12"],
         "flask": ["Flask>=2.3.3"],
-        "tornado": ["tornado>=4.5.3"],
+        "tornado": ["tornado>=4.5.1"],
         "asgi": ["starlette>=0.31.1"]
     },
     entry_points={
