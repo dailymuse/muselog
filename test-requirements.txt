@@ -1,10 +1,10 @@
 freezegun==1.2.2
 Flask==2.3.3
-Django==2.2.28
-requests==2.31.0
+Django==2.2.12
+requests==2.24.0
 starlette==0.31.1
-tornado==4.5.3
+tornado==4.5.1
 httpx==0.25.0
 
 ddtrace==2.1.1
-JSON-log-formatter==0.5.2
+JSON-log-formatter==0.1.0
