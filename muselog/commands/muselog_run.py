@@ -26,6 +26,11 @@ def _validate_module_log_level(ctx, param, value):
             if not module or not log_level:
                 raise ValueError
             _ = LogLevel[log_level.lower()]
+    except TypeError:
+        if value is None:
+            raise typer.BadParameter("log levels cannot be None")
+        else:
+            raise typer.BadParameter("format must be module=DEBUG|INFO|WARNING|ERROR|CRITICAL")
     except ValueError:
         raise typer.BadParameter("format must be module=DEBUG|INFO|WARNING|ERROR|CRITICAL")
     except KeyError:
