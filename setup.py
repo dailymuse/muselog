@@ -19,7 +19,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         "django": ["Django>=2.2.12"],
-        "flask": ["Flask>=2.3.3"],
+        "flask": ["Flask>=2.1.3"],
         "tornado": ["tornado>=4.5.1"],
         "asgi": ["starlette>=0.31.1"]
     },
