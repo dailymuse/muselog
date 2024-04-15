@@ -4,7 +4,7 @@ VERSION = "2.5.3"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
-    "ddtrace>=2.1.1",  # Let's leap ahead
+    "ddtrace>=1.3.2",  # Let's leap ahead
     "typer>=0.3.0"
 ]
 
@@ -21,7 +21,7 @@ setup(
         "django": ["Django>=2.2.12"],
         "flask": ["Flask>=2.1.3"],
         "tornado": ["tornado>=4.5.1"],
-        "asgi": ["starlette>=0.31.1"]
+        "asgi": ["starlette>=0.13.6"]
     },
     entry_points={
         "console_scripts": [
