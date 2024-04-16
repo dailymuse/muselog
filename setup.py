@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-VERSION = "2.6.0"
+VERSION = "2.7.0"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
-    "ddtrace>=2.1.1",  # Let's leap ahead
+    "ddtrace>=1.3.2",
     "typer>=0.3.0"
 ]
 
