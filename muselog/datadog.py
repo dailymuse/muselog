@@ -10,7 +10,7 @@ from logging import LogRecord
 from logging.handlers import DatagramHandler
 
 import json_log_formatter
-from ddtrace import Tracer
+from ddtrace.trace import Tracer
 
 class DataDogUdpHandler(DatagramHandler):
     """A handler class which writes logging records, in pickle format, to a datagram socket.

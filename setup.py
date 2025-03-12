@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-VERSION = "2.7.0"
+VERSION = "2.8.0"
 
 install_requires = [
     "JSON-log-formatter>=0.2.0",
-    "ddtrace>=1.3.2",
+    "ddtrace @ git+https://github.com/ellingtonjp/dd-trace-py.git@ea12f34c3c3555e244d0e965dee7314b78a27fa1"
     "typer>=0.3.0"
 ]
 
