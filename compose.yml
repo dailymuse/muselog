@@ -1,0 +1,7 @@
+services:
+  test:
+    image: python:3.13
+    command: bash -c "pip install --root-user-action=ignore -r test-requirements.txt && python -m unittest"
+    working_dir: /muselog
+    volumes:
+      - .:/muselog
