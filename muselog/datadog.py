@@ -1,16 +1,12 @@
 """Module that houses all logic necessary to send well-formed logs to Datadog."""
-
-import json
-import sys
-from typing import Any, Mapping
-import os
-
 from datetime import timedelta
 from logging import LogRecord
 from logging.handlers import DatagramHandler
+from typing import Any, Mapping
+import json, os, sys
 
 import json_log_formatter
-from ddtrace import Tracer
+from opentelemetry import trace
 
 class DataDogUdpHandler(DatagramHandler):
     """A handler class which writes logging records, in pickle format, to a datagram socket.
@@ -85,7 +81,7 @@ class ObjectEncoder(json.JSONEncoder):
 
 class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
     """JSON log formatter that includes Datadog standard attributes."""
-    
+
     def __init__(self, trace_enabled: bool = False):
         """Create the formatter.
 
@@ -140,11 +136,15 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
 
         exc_info = record.exc_info
         try:
-            if self.trace_enabled:                
+            if self.trace_enabled:
                 # get correlation ids from current tracer context
-                context = Tracer.get_log_correlation_context(self)
-                record_dict["dd.trace_id"] = int(context['trace_id']) or 0
-                record_dict["dd.span_id"] = int(context['span_id']) or 0
+                current_span = trace.get_current_span()
+
+                if current_span is not None:
+                    record_dict['dd.trace_id'] = str(current_span.get_span_context().trace_id & 0xFFFFFFFFFFFFFFFF)
+                    record_dict['dd.span_id'] = str(current_span.get_span_context().span_id)
+                else:
+                    record_dict["dd.trace_id"] = record_dict["dd.span_id"] = 0
 
             if "context" in record_dict:
                 context_obj = dict()
@@ -183,5 +183,4 @@ class DatadogJSONFormatter(json_log_formatter.JSONFormatter):
             if "error.stack" not in record_dict:
                 limit = int(os.environ.get("DATADOG_ERROR_STACK_LIMIT", 10000))
                 record_dict["error.stack"] = self.formatException(exc_info)[0:limit]
-
         return record_dict

@@ -58,19 +58,19 @@ def setup_logging(
             logging.getLogger(module_name).setLevel(log_level)
 
     if add_console_handler:
-        if os.environ.get("ENABLE_DATADOG_JSON_FORMATTER", "false").lower() == "true":
+        trace_enabled = (
+            os.environ.get("ENABLE_DATADOG_JSON_FORMATTER", "false").lower() == "true"
+            and os.environ.get("OTEL_SDK_DISABLED", "false").lower() != "true"
+        )
+        if trace_enabled:
             from muselog.datadog import DatadogJSONFormatter
-            if os.environ.get("DD_TRACE_ENABLED", "false").lower() == "true":
-                trace_enabled = True
-            elif os.environ.get("DATADOG_TRACE_ENABLED", "false").lower() == "true":
-                trace_enabled = True
-            else:
-                trace_enabled = False
             formatter = DatadogJSONFormatter(trace_enabled=trace_enabled)
         else:
             formatter = logging.Formatter(fmt=console_handler_format or DEFAULT_LOG_FORMAT)
+
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
+
         if root_logger.handlers:
             # Python's root_logger by default adds a StreamHandler if none is specified.
             # If this is present, we want it tracked and taken out later.
@@ -78,17 +78,6 @@ def setup_logging(
             # it doesn't have the JSON formatter for easy interpretation on Datadog)
             root_logger.removeHandler(root_logger.handlers[0])
         root_logger.addHandler(console_handler)
-
-    # Add datadog handler if log to datadog is enabled
-    if "DATADOG_HOST" in os.environ:
-        from muselog.datadog import DataDogUdpHandler
-        opts = dict(
-            host=os.environ["DATADOG_HOST"],
-            port=int(os.environ.get("DATADOG_UDP_PORT", 10518))
-        )
-
-        datadog_handler = DataDogUdpHandler(**opts)
-        root_logger.addHandler(datadog_handler)
 
     if exception_handler is not None:
         sys.excepthook = exception_handler

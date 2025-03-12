@@ -137,8 +137,8 @@ class InjectTraceValuesTestCase(ClearContext, unittest.TestCase):
         self.logger.info("this is a test message")
         output = json.loads(self.output.getvalue())
 
-        self.assertEqual(output["dd.trace_id"], 0)
-        self.assertEqual(output["dd.span_id"], 0)
+        self.assertEqual(output["dd.trace_id"], "0")
+        self.assertEqual(output["dd.span_id"], "0")
 
     def test_trace_enabled_false(self):
         self.formatter.trace_enabled = False
