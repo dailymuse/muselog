@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 install_requires = [
     "opentelemetry-sdk>=1.30.0",
