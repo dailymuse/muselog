@@ -1,6 +1,8 @@
 # Muselog
 Muselog standardizes logging across all Python applications in use at The Muse.
 It integrates with [DataDog](https://www.datadoghq.com/), and it provides request hooks for the following web frameworks or interfaces.
+We're moving away from using DataDog's ddtrace library and integrating Muselog with OpenTelemetry, which provides instrumentation for many libraries and frameworks.
+Consider the custom hooks deprecated since 3.0.0. Muselog can now be considered as a DataDog support layer for OTel logging, providing JSON formatting and trace correlation.
 
 - [ASGI](https://asgi.readthedocs.io/en/latest/)
 - [Django](https://www.djangoproject.com/)
