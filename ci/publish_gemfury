@@ -15,9 +15,9 @@ if [[ $branch == "main" ]]; then
     curl -F package=@dist/$package_name-$package_version.tar.gz https://$gemfury_push_token@push.fury.io/themuse
 else
     # Changes the version number inside setup.py to be a temporary build based on circleci build number
-    sed -i -e 's/VERSION = "'$package_version'"/VERSION = "'$package_version'-build-'$circle_build_num'"/g' setup.py
+    sed -i -e 's/VERSION = "'$package_version'"/VERSION = "'$package_version'+build.'$circle_build_num'"/g' setup.py
     # create dist using python setup dist
     python3 setup.py sdist
     # push dist to gemfury using curl and token
-    curl -F package=@dist/$package_name-$package_version-build-$circle_build_num.tar.gz https://$gemfury_push_token@push.fury.io/themuse
+    curl -F package=@dist/$package_name-$package_version+build.$circle_build_num.tar.gz https://$gemfury_push_token@push.fury.io/themuse
 fi
