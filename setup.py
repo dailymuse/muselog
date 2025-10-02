@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "3.0.1"
+VERSION = "3.0.2"
 
 install_requires = [
     "opentelemetry-sdk>=1.30.0",
@@ -15,7 +15,7 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.12",
+    python_requires=">=3.10",
     install_requires=install_requires,
     extras_require={
         "django": ["Django>=2.2.12"],
