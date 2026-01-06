@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-VERSION = "3.0.2"
+VERSION = "3.0.3"
 
 install_requires = [
-    "opentelemetry-sdk>=1.30.0",
-    "JSON-log-formatter>=0.2.0",
-    "typer>=0.3.0",
+    "opentelemetry-sdk==1.38.0",
+    "JSON-log-formatter==1.1.1",
+    "typer==0.21.0",
 ]
 
 setup(
